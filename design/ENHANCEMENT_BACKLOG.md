@@ -1,8 +1,8 @@
 # 增强需求池 · 艾宾浩斯知识点备忘录
 
 > 作者：产品经理 许清楚 ｜ 日期：2026-09-15 ｜ 范围：**产品分析与需求规划，不含实现**
-> 依据：`ORIGINAL_REQUEST.md`、`DELIVERY_SUMMARY.md`、以及对 `data/local/`、`ui/theme/` 源码的实读核对。
-> 本文只做增量规划，不重复 `DELIVERY_SUMMARY.md` §六 已列事项（真机走查、Jacoco、Compose 仪器化测试等），仅对其中"深色模式 / 导入导出"做展开细化。
+> 依据：`ORIGINAL_REQUEST.md`、以及对 `data/local/`、`ui/theme/` 源码的实读核对。
+> 本文只做增量规划，不重复交付总结（DELIVERY_SUMMARY 已归档）§六 已列事项（真机走查、Jacoco、Compose 仪器化测试等），仅对其中"深色模式 / 导入导出"做展开细化。
 
 ---
 
@@ -176,7 +176,7 @@
 
 ## 7. 附：与既有交付记录的关系（避免重复劳动）
 
-- `DELIVERY_SUMMARY.md` §六 已列：真机走查、IDE Preview 验收、安装体验、Medium 段 `Fixed(2)`、Jacoco 覆盖率、Compose 仪器化测试、
+- 交付总结（DELIVERY_SUMMARY 已归档）§六 已列：真机走查、IDE Preview 验收、安装体验、Medium 段 `Fixed(2)`、Jacoco 覆盖率、Compose 仪器化测试、
   **"外观/深色模式"** 与 **"数据导入导出"** 两个专项。
 - 本文**不重复**上述"走查/测试/覆盖率"类事项；对 **深色模式** 与 **导入导出** 两个专项做了**展开细化**
   （分别落为 E03 与 E01/E02），并给出**关键修正**：深色模式并非"未实现"，而是"已跟随系统、缺手动开关"，成本应下调至 **S**。

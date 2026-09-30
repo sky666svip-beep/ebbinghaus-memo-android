@@ -1,6 +1,6 @@
 # 艾宾浩斯备忘录 · 增量架构设计与任务分解 V3
 
-> v3.0 · 架构师：高见远 ｜ 输入：`PRD_INCREMENT_V3.md`(已批准)、`INTERACTION_REVIEW.md`、`ARCHITECTURE_INCREMENT_V2.md`、`FIX_SUMMARY.md`、`app/`+`core/` 源码（逐文件实读）
+> v3.0 · 架构师：高见远 ｜ 输入：`PRD_INCREMENT_V3.md`(已批准)、`app/`+`core/` 源码（逐文件实读）
 > 范围：**P2-1 ~ P2-10**，不含实现代码 ｜ 硬约束：`./gradlew test` 保持 **175 passed**（只增不改）；Manifest 零新增权限；**零新增依赖**；compileSdk/targetSdk 保持 **35**；**无 Room schema 变更**；release ≤ +100 KB
 
 ## 0. 现状勘察（读码所得，设计以此为准）
@@ -10,7 +10,7 @@
 | 1 | Snackbar 通道为纯数据 Effect：`ShowSnackbar(message)`，UI 侧 `showSnackbar(effect.message)`，**全项目无 `actionLabel`/`withDismissAction`** | `MemoListViewModel.kt:137`、`MemoListScreen.kt:301-307`；grep `actionLabel` 仅命中 `EmptyState` |
 | 2 | 列表页删除走 `OnRequestDeleteMemo→OnConfirmDeleteMemo`（软删+Snackbar）；`OnDeleteMemo` 为「立即删除」语义（被单测依赖，**不得改**） | `MemoListViewModel.kt:74-84,319-367`；`MemoListViewModelTest.kt:95-109` |
 | 3 | `restoreMemo(id)` 仅 `UPDATE deletedAt=NULL`，**不触碰 content/notes/tags** | `MemoRepositoryImpl.kt:132-134`；`KnowledgeMemoDao.kt:54-55` |
-| 4 | 回收站查询 `getTrashedMemos()` 返回 `Flow<List<KnowledgeMemoEntity>>`，**不含复习进度**（进度在 `review_tasks`）；软删条目 `review_tasks` 行**保留**（无 CASCADE） | `KnowledgeMemoDao.kt:63-64`；`ARCHITECTURE_INCREMENT_V2.md:279` |
+| 4 | 回收站查询 `getTrashedMemos()` 返回 `Flow<List<KnowledgeMemoEntity>>`，**不含复习进度**（进度在 `review_tasks`）；软删条目 `review_tasks` 行**保留**（无 CASCADE） | `KnowledgeMemoDao.kt:63-64` |
 | 5 | 复习任务与知识点 **1:1**（`Index(memoId, unique)` + `onDelete=CASCADE`），FK 已在 `onOpen` 显式开启 | `ReviewTaskEntity.kt:22-36`；`AppDatabase.kt:65-70` |
 | 6 | 列表搜索管线固定 **6 元参数** `k1..k6`（空串=不启用，AND），搜索范围 = **content + notes**（**不含 tags**） | `KnowledgeMemoDao.kt:85-113` |
 | 7 | UI 高亮切分 `searchQuery.split(" ", "　")`（**与仓储 `\s+` 不一致**） | `MemoListScreen.kt:330-332`；`MemoRepositoryImpl.kt:45` |
