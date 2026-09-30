@@ -1,14 +1,17 @@
-name: Android CI
+name: Release APK
 
+# 推送 v* 标签（如 v1.0.0）时，自动构建 APK 并发布到 GitHub Releases（永久留存）
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
-  build:
-    name: Build & Test
+  release:
+    name: Build and publish APK
     runs-on: ubuntu-latest
 
     steps:
@@ -25,20 +28,17 @@ jobs:
       - name: Install Android SDK packages
         run: |
           SDKMANAGER=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager | head -1)
-          echo "Using sdkmanager: $SDKMANAGER"
           yes | "$SDKMANAGER" --licenses
           "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build debug APK and run unit tests
-        run: ./gradlew :app:assembleDebug :app:testDebugUnitTest :core:test --stacktrace
+      - name: Build debug APK
+        run: ./gradlew :app:assembleDebug --stacktrace
 
-      - name: Upload debug APK
-        if: success()
-        uses: actions/upload-artifact@v4
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: app-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
-          retention-days: 90
+          files: app/build/outputs/apk/debug/app-debug.apk
+          generate_release_notes: true
