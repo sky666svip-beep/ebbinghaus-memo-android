@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Macrobenchmark 测试 APK 的清单。
+  注意：这是测试模块自身的清单，与 app 模块的「零新增权限」约束无关。
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+</manifest>

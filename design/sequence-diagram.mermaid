@@ -1,0 +1,99 @@
+sequenceDiagram
+    autonumber
+    %% ========== 流程一：底部导航切换 ==========
+    participant U as 用户
+    participant AS as AppScaffold
+    participant NB as AppNavigationBar/Rail
+    participant NAV as NavHostController
+    participant VM as DashboardViewModel(Activity级)
+    participant MS as MemoListScreen
+    participant RS as ReviewScreen
+
+    rect rgb(232, 244, 248)
+    Note over U,RS: 流程一 · 底部导航切换（含 Badge 刷新与状态保持）
+    U->>AS: 冷启动
+    AS->>VM: 订阅 uiState
+    VM-->>AS: dueTodayCount=N, deferredCount=M
+    AS->>NB: badgeCount=N（N>0 且 dailyLimit>0 才显示）
+    Note over AS,NB: Compact→NavigationBar；Medium/Expanded→NavigationRail
+    U->>NB: 点击「复习」
+    NB->>NAV: navigate(review) launchSingleTop=true, restoreState=true
+    NAV->>MS: 退出组合（saveState=true，搜索词/标签/滚动位置保留）
+    NAV->>RS: 进入 review
+    RS->>VM: loadReviewBatch()
+    Note over AS: currentRoute=review → 底栏隐藏（沉浸页）
+    U->>RS: 提交评级
+    RS->>RS: submitReviewRating(taskId, rating, today)
+    RS->>VM: Room Flow 重发（dueDate 后移）
+    VM-->>AS: dueTodayCount=N-1
+    AS->>NB: Badge 自动减 1
+    U->>RS: 返回
+    RS->>NAV: popBackStack()
+    NAV->>MS: 恢复组合（restoreState=true）
+    MS-->>U: 搜索词/标签/滚动位置原样恢复
+    end
+
+    %% ========== 流程二：删除确认闭环 ==========
+    participant DLG as DeleteConfirmDialog
+    participant MVM as MemoListViewModel
+    participant REPO as MemoRepository
+    participant DB as Room(物理删除+CASCADE)
+    participant SB as SnackbarHostState
+
+    rect rgb(252, 240, 240)
+    Note over U,SB: 流程二 · 删除确认闭环（列表页，无撤销）
+    U->>MS: 点击卡片删除图标
+    MS->>MVM: onEvent(OnRequestDeleteMemo(id))
+    MVM->>MVM: pendingDeleteId=id, isDeleteDialogVisible=true
+    MVM-->>MS: uiState 变更
+    MS->>DLG: 显示（含内容预览 + 级联清理不可恢复说明）
+    alt 用户取消
+        U->>DLG: 取消
+        DLG->>MVM: onEvent(OnCancelDeleteMemo)
+        MVM->>MVM: pendingDeleteId=null, 关闭弹窗
+    else 用户确认（error 色）
+        U->>DLG: 确认删除
+        DLG->>MVM: onEvent(OnConfirmDeleteMemo)
+        MVM->>REPO: deleteMemo(id)
+        REPO->>DB: DELETE knowledge_memos + CASCADE review_tasks
+        DB-->>REPO: 完成
+        MVM->>MVM: _effect.emit(ShowSnackbar)
+        MVM-->>MS: effect
+        MS->>SB: showSnackbar(message)（无 action，4s 消失）
+        Note over SB: 不提供「撤销」——Room 为物理删除，无法恢复
+        REPO-->>MVM: searchMemos Flow 重发
+        MVM-->>MS: memos 移除该条
+        MS-->>U: 列表更新；变空则显示 EmptyState(S1)
+    end
+    end
+
+    %% ========== 流程三：响应式断点切换 ==========
+    participant SYS as 系统(旋转/分屏/窗口缩放)
+    participant CFG as LocalConfiguration
+    participant WSC as rememberWindowSizeClass()
+    participant AN as AppNavigation
+
+    rect rgb(240, 244, 232)
+    Note over SYS,AN: 流程三 · 响应式断点切换
+    SYS->>CFG: Configuration 变更 (screenWidthDp 411 → 900)
+    CFG-->>WSC: 触发 recomposition
+    WSC->>WSC: 判定 width>=840 → Expanded
+    WSC-->>AN: WindowSizeClass(Expanded)
+    AN->>AS: windowSizeClass=Expanded, currentRoute=memo_list
+    AS->>AS: useRail=true → NavigationRail(80dp)
+    AS->>AS: Row { Rail | content(weight 1f) }
+    AN->>MS: windowSizeClass=Expanded
+    alt 宽度 >= 840dp
+        MS->>MS: useListDetail=true → Row { 左Pane 360dp | 右Pane 详情 }
+        MS->>MS: 选中项 primaryContainer 高亮
+        Note over MS: 不 navigate 到 memo_detail，仅更新 selectedMemoId
+    else 600–839dp
+        MS->>MS: LazyVerticalGrid(GridCells.Adaptive(320.dp)) 2 列
+        MS->>MS: 点击 → navigate(memo_detail/id) 下钻
+    else <600dp
+        MS->>MS: 单列 LazyColumn；横屏时改左右双列
+    end
+    AN->>RS: windowSizeClass=Expanded
+    RS->>RS: contentMaxWidth=720dp → 卡片与按钮区限宽居中
+    Note over RS: 横屏 Compact → 左卡片/右按钮 双列
+    end

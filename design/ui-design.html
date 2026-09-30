@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>艾宾浩斯知识点备忘录 · UI/UX 设计方案</title>
+<style>
+:root{
+  --primary:#006874; --on-primary:#fff; --p-container:#97F0FF; --on-p-container:#001F24;
+  --s-container:#CDE7EC; --on-s-container:#051F23;
+  --tertiary:#525E7D;
+  --surface:#F8FAF8; --on-surface:#191C1D; --s-variant:#DBE4E6; --on-s-variant:#3F484A;
+  --outline:#6F797A; --page:#EEF2F2; --white:#fff;
+  --forget:#E53935; --vague:#F57C00; --remember:#2E7D32; --skip:#1976D2; --reviewed:#00796B;
+  --line:#E2E8E8; --ink:#1F2627; --ink2:#5A6668; --ink3:#899294;
+  --radius:16px;
+  --mono:'SF Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--page); color:var(--ink); line-height:1.7; font-size:15px;
+}
+.wrap{display:flex;max-width:1560px;margin:0 auto;gap:0}
+/* ---------- TOC ---------- */
+.toc{
+  width:236px;flex:0 0 236px;position:sticky;top:0;height:100vh;overflow-y:auto;
+  padding:28px 18px 40px 24px;border-right:1px solid var(--line);background:#fff;
+}
+.toc h4{font-size:12px;letter-spacing:.12em;color:var(--ink3);text-transform:uppercase;margin-bottom:14px}
+.toc a{display:block;padding:7px 10px;border-radius:8px;color:var(--ink2);text-decoration:none;font-size:13.5px;transition:.15s}
+.toc a:hover{background:var(--s-container);color:var(--primary)}
+.toc a.sub{padding-left:26px;font-size:12.5px;color:var(--ink3)}
+.toc .brand{font-size:15px;font-weight:700;color:var(--primary);margin-bottom:4px}
+.toc .brand-sub{font-size:11.5px;color:var(--ink3);margin-bottom:22px;line-height:1.5}
+/* ---------- main ---------- */
+.main{flex:1;min-width:0;padding:0 40px 100px}
+header.hero{padding:46px 0 30px;border-bottom:1px solid var(--line);margin-bottom:38px}
+header.hero .tag{display:inline-block;background:var(--p-container);color:var(--on-p-container);
+  padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:14px}
+header.hero h1{font-size:34px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1.25}
+header.hero p{color:var(--ink2);margin-top:10px;max-width:820px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.meta span{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:12.5px;color:var(--ink2)}
+section{margin-bottom:64px;scroll-margin-top:20px}
+h2{font-size:24px;font-weight:800;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+h2 .num{background:var(--primary);color:#fff;width:30px;height:30px;border-radius:9px;display:inline-flex;
+  align-items:center;justify-content:center;font-size:14px;font-weight:700;flex:0 0 30px}
+h3{font-size:17px;font-weight:700;margin:30px 0 12px;color:var(--ink);padding-left:11px;border-left:3px solid var(--primary)}
+h4{font-size:14px;font-weight:700;margin:20px 0 8px;color:var(--ink2)}
+.lead{color:var(--ink2);margin:8px 0 22px;max-width:960px}
+p{color:var(--ink2);margin-bottom:10px}
+ul{margin:0 0 12px 20px;color:var(--ink2)} li{margin-bottom:5px}
+code{font-family:var(--mono);background:#E8EDED;padding:1.5px 6px;border-radius:5px;font-size:12.5px;color:#00505A}
+/* ---------- cards/grid ---------- */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)} .g5{grid-template-columns:repeat(5,1fr)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.card h5{font-size:13.5px;font-weight:700;margin-bottom:6px}
+.card p{font-size:13px;margin-bottom:0;line-height:1.6}
+.card .k{font-family:var(--mono);font-size:11.5px;color:var(--ink3)}
+/* ---------- tokens ---------- */
+.swatch{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.swatch .c{height:56px}
+.swatch .t{padding:9px 11px}
+.swatch .t b{display:block;font-size:12.5px}
+.swatch .t span{font-family:var(--mono);font-size:11px;color:var(--ink3)}
+.typescale div{display:flex;align-items:baseline;gap:14px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.typescale .nm{font-family:var(--mono);font-size:12px;color:var(--primary);width:130px;flex:0 0 130px}
+.typescale .sp{font-family:var(--mono);font-size:11px;color:var(--ink3);width:100px;flex:0 0 100px}
+/* ---------- table ---------- */
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);
+  border-radius:12px;overflow:hidden;font-size:13px;margin:12px 0}
+th{background:#F2F6F6;text-align:left;padding:10px 12px;font-weight:700;color:var(--ink);
+  border-bottom:1px solid var(--line);font-size:12.5px;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid #F0F3F3;color:var(--ink2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{color:var(--ink)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.pill.g{background:#E3F2E4;color:#1B5E20} .pill.o{background:#FFF0DC;color:#8A4B00}
+.pill.r{background:#FFE2E0;color:#8C1D18} .pill.b{background:#DCEBFA;color:#0D47A1}
+.pill.t{background:#D9EFEC;color:#00544B} .pill.n{background:#EDEFEF;color:#4A5455}
+/* ---------- phone mockups ---------- */
+.rack{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:9px}
+.phone-wrap .cap{font-size:12.5px;font-weight:700;color:var(--ink)}
+.phone-wrap .sub{font-size:11.5px;color:var(--ink3);margin-top:-6px;text-align:center;max-width:300px;line-height:1.5}
+.phone{width:300px;height:620px;border-radius:34px;background:#12191A;padding:9px;
+  box-shadow:0 10px 30px rgba(20,40,42,.16),0 0 0 1px #0C1213;flex:0 0 auto;position:relative}
+.phone .scr{width:100%;height:100%;border-radius:26px;overflow:hidden;background:var(--page);
+  display:flex;flex-direction:column;font-size:13px;position:relative}
+.sbar{height:26px;background:var(--surface);display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;font-size:10px;font-weight:700;color:var(--ink);flex:0 0 26px}
+.bar{height:50px;background:var(--surface);display:flex;align-items:center;gap:6px;padding:0 6px;
+  border-bottom:1px solid #EDF0F0;flex:0 0 50px}
+.bar .ti{font-size:15px;font-weight:700;color:var(--ink);margin-left:4px;flex:1}
+.bar .sp{flex:1}
+.ib{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 36px}
+.ib svg{width:19px;height:19px;fill:var(--ink)}
+.ib.pri svg{fill:var(--primary)}
+.ib.err svg{fill:var(--forget)}
+.ib.mut svg{fill:var(--ink3)}
+.body{flex:1;overflow:hidden;background:var(--page);display:flex;flex-direction:column}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+.scroll::-webkit-scrollbar{width:0}
+.pad{padding:10px 12px}
+.navbar{height:56px;background:var(--surface);border-top:1px solid var(--line);display:flex;flex:0 0 56px}
+.nv{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative}
+.nv svg{width:21px;height:21px;fill:var(--ink3)}
+.nv span{font-size:9.5px;color:var(--ink3);font-weight:600}
+.nv.on svg{fill:var(--primary)} .nv.on span{color:var(--primary)}
+.badge{position:absolute;top:4px;left:50%;margin-left:4px;background:var(--forget);color:#fff;
+  font-size:9px;font-weight:700;padding:0 5px;border-radius:999px;line-height:14px;height:14px}
+/* app pieces */
+.bnr{border-radius:14px;padding:12px;margin:10px 12px;display:flex;gap:10px;align-items:center}
+.bnr.a{background:var(--p-container)} .bnr.b{background:var(--s-container)} .bnr.c{background:var(--s-variant)}
+.bnr .lbl{font-size:10.5px;opacity:.85;color:var(--on-p-container)}
+.bnr .num{font-size:21px;font-weight:800;color:var(--on-p-container);line-height:1.2}
+.bnr .sub{font-size:10px;color:var(--on-p-container);opacity:.72;margin-top:3px;line-height:1.4}
+.bnr .ttl{font-size:13px;font-weight:700;color:var(--on-s-container);line-height:1.3}
+.bnr .ttl2{font-size:10.5px;color:var(--on-s-container);opacity:.8;margin-top:2px;line-height:1.4}
+.bnr .ttl3{font-size:13px;font-weight:700;color:var(--on-s-variant);line-height:1.3}
+.bnr .ttl4{font-size:10.5px;color:var(--on-s-variant);margin-top:2px;line-height:1.4}
+.bnr svg{width:28px;height:28px;flex:0 0 28px}
+.btn-p{background:var(--primary);color:#fff;border-radius:10px;padding:7px 10px;font-size:11.5px;font-weight:700;
+  display:flex;align-items:center;gap:3px;white-space:nowrap}
+.btn-p svg{width:14px;height:14px;fill:#fff}
+.srch{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid #D3DBDC;
+  border-radius:10px;padding:8px 10px;margin:2px 12px 8px}
+.srch svg{width:16px;height:16px;fill:var(--ink3);flex:0 0 16px}
+.srch input{border:none;outline:none;background:none;font-size:12px;flex:1;color:var(--ink);font-family:inherit;min-width:0}
+.chips{display:flex;gap:6px;padding:0 12px 9px;overflow:hidden}
+.chip{border:1px solid #CFD8D9;border-radius:999px;padding:4px 10px;font-size:10.5px;color:var(--ink2);
+  white-space:nowrap;background:var(--surface);font-weight:500}
+.chip.on{background:var(--s-container);border-color:transparent;color:var(--on-s-container);font-weight:700}
+.mcard{background:var(--surface);border-radius:13px;padding:11px;margin:0 12px 8px;
+  box-shadow:0 1px 2px rgba(20,40,42,.07)}
+.mcard .ct{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mcard .nt{display:flex;gap:4px;align-items:flex-start;margin-top:6px}
+.mcard .nt svg{width:12px;height:12px;fill:var(--tertiary);flex:0 0 12px;margin-top:2px}
+.mcard .nt span{font-size:10.5px;color:var(--tertiary);line-height:1.45;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.mcard .fr{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.mcard .fr .tags{display:flex;gap:4px;flex-wrap:wrap}
+.mcard .fr .ops{display:flex;gap:2px}
+.mcard .fr .ops .ib{width:26px;height:26px;flex:0 0 26px}
+.mcard .fr .ops .ib svg{width:15px;height:15px}
+.tag{background:#EDF2F2;border-radius:6px;padding:2px 7px;font-size:9.5px;color:var(--ink2);font-weight:500}
+.fab{position:absolute;right:20px;bottom:70px;width:50px;height:50px;border-radius:15px;background:var(--primary);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,104,116,.35)}
+.fab svg{width:24px;height:24px;fill:#fff}
+/* empty */
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;text-align:center;gap:9px}
+.empty svg{width:60px;height:60px;fill:#C3CCCD}
+.empty .t1{font-size:13px;font-weight:600;color:var(--ink2);line-height:1.5}
+.empty .t2{font-size:11px;color:var(--ink3);line-height:1.5}
+.empty .btn{background:var(--s-container);color:var(--on-s-container);border-radius:9px;padding:7px 14px;
+  font-size:11.5px;font-weight:700;margin-top:3px}
+/* review */
+.prog{height:5px;background:var(--s-variant);flex:0 0 5px}
+.prog i{display:block;height:100%;background:var(--primary);border-radius:0 3px 3px 0}
+.rcard{background:var(--surface);border-radius:18px;margin:12px;padding:15px;box-shadow:0 2px 8px rgba(20,40,42,.09)}
+.rcard .hd{display:flex;justify-content:space-between;align-items:center}
+.stg{background:var(--p-container);color:var(--on-p-container);border-radius:7px;padding:3px 8px;font-size:10px;font-weight:700}
+.rcard .cnt{font-size:12.5px;color:var(--ink3)}
+.rcard .q{font-size:15px;font-weight:600;color:var(--ink);margin:13px 0 10px;line-height:1.55}
+.drawer{display:flex;align-items:center;gap:6px;padding:7px 0;border-top:1px solid #EDF0F0;margin-top:8px}
+.drawer svg{width:17px;height:17px;fill:var(--tertiary)}
+.drawer span{font-size:12px;font-weight:600;color:var(--tertiary);flex:1}
+.note-box{background:#EEF3F3;border-radius:11px;padding:10px;margin-top:8px;display:flex;gap:8px;align-items:flex-start}
+.note-box p{font-size:11.5px;color:var(--ink2);line-height:1.55;flex:1}
+.note-box .ib{width:24px;height:24px;flex:0 0 24px}
+.note-box .ib svg{width:14px;height:14px}
+.acts{padding:10px 12px 14px;background:var(--page);flex:0 0 auto}
+.arow{display:flex;gap:7px;margin-bottom:7px}
+.abtn{flex:1;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;gap:4px;
+  font-size:12.5px;font-weight:700;color:#fff}
+.abtn svg{width:15px;height:15px;fill:#fff}
+.abtn.forget{background:var(--forget)} .abtn.vague{background:var(--vague)} .abtn.remember{background:var(--remember)}
+.obtn{flex:1;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;gap:4px;
+  font-size:11.5px;font-weight:700;border:1px solid}
+.obtn svg{width:16px;height:16px}
+.obtn.rev{color:var(--reviewed);border-color:#9FC7C2} .obtn.rev svg{fill:var(--reviewed)}
+.obtn.skp{color:var(--skip);border-color:#A8C6E8} .obtn.skp svg{fill:var(--skip)}
+.w1{flex:1.2} .w2{flex:.8}
+/* detail */
+.dcard{background:var(--surface);border-radius:14px;padding:13px;margin:0 12px 10px;box-shadow:0 1px 2px rgba(20,40,42,.07)}
+.dcard .ch{display:flex;align-items:center;gap:5px;margin-bottom:9px}
+.dcard .ch svg{width:16px;height:16px}
+.dcard .ch b{font-size:12px;font-weight:700}
+.dcard .ch.pri svg{fill:var(--primary)} .dcard .ch.pri b{color:var(--primary)}
+.dcard .ch.ter svg{fill:var(--tertiary)} .dcard .ch.ter b{color:var(--tertiary)}
+.dcard .q{font-size:13.5px;line-height:1.65;color:var(--ink)}
+.kv{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:11.5px;color:var(--ink2)}
+.kv b{color:var(--ink);font-weight:600}
+.kv .st{background:var(--primary);color:#fff;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:600}
+.kv .mut{color:var(--ink3);font-size:10.5px}
+.dact{display:flex;gap:10px;padding:4px 12px 20px}
+.dact .f{flex:1;height:44px;border-radius:11px;background:var(--primary);color:#fff;display:flex;
+  align-items:center;justify-content:center;gap:5px;font-size:12.5px;font-weight:700}
+.dact .f svg{width:16px;height:16px;fill:#fff}
+.dact .o{height:44px;border-radius:11px;border:1px solid #E7B4B1;color:var(--forget);display:flex;
+  align-items:center;justify-content:center;gap:4px;font-size:12.5px;font-weight:700;padding:0 16px}
+.dact .o svg{width:16px;height:16px;fill:var(--forget)}
+/* settings */
+.stg-card{background:var(--surface);border-radius:16px;padding:15px;margin:0 12px 12px;box-shadow:0 1px 3px rgba(20,40,42,.07)}
+.stg-card .st{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.stg-card .st svg{width:19px;height:19px;fill:var(--primary)}
+.stg-card .st b{font-size:13.5px;font-weight:700}
+.bignum{text-align:center;padding:6px 0 2px}
+.bignum .n{font-size:44px;font-weight:800;color:var(--primary);line-height:1}
+.bignum .u{font-size:14px;color:var(--ink3);font-weight:600}
+.bignum .off{font-size:15px;font-weight:800;color:var(--forget)}
+.slider{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--primary) 0 40%,#D5DDDE 40% 100%);
+  margin:16px 2px 12px;position:relative}
+.slider i{position:absolute;left:40%;top:50%;width:16px;height:16px;border-radius:50%;background:var(--primary);
+  transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,104,116,.4)}
+.rule{background:var(--surface);border-radius:9px;padding:9px;margin-top:7px}
+.rule b{font-size:11px;color:var(--primary);display:block;margin-bottom:3px}
+.rule span{font-size:10.5px;color:var(--ink2);line-height:1.5}
+/* dialog overlay */
+.dg{position:absolute;inset:0;background:rgba(15,25,26,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.dg .box{background:var(--surface);border-radius:24px;padding:18px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.dg .ico{width:38px;height:38px;border-radius:50%;background:var(--p-container);display:flex;align-items:center;
+  justify-content:center;margin-bottom:10px}
+.dg .ico svg{width:20px;height:20px;fill:var(--primary)}
+.dg h6{font-size:15px;font-weight:700;margin-bottom:7px;color:var(--ink)}
+.dg p{font-size:11.5px;color:var(--ink2);line-height:1.6;margin-bottom:5px}
+.dg .note{font-size:10px;color:var(--ink3);line-height:1.5}
+.dg .row{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}
+.dg .row .tb{font-size:11.5px;font-weight:700;color:var(--primary);padding:7px 12px;border-radius:8px}
+.dg .row .tb.f{background:var(--primary);color:#fff}
+.dg .row .tb.d{background:var(--forget);color:#fff}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:10.5px;color:var(--primary);margin-bottom:4px;font-weight:600}
+.field .inp{border:1px solid #C9D3D4;border-radius:9px;padding:8px 10px;font-size:12px;color:var(--ink);
+  min-height:34px;background:var(--surface)}
+.field .inp.ph{color:var(--ink3)}
+.field .inp.err{border-color:var(--forget)}
+.field .msg{font-size:10px;color:var(--forget);margin-top:3px}
+/* toast / snackbar */
+.toast{position:absolute;left:14px;right:14px;bottom:70px;background:#2A3536;color:#fff;border-radius:10px;
+  padding:10px 13px;font-size:11.5px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 6px 20px rgba(0,0,0,.28);z-index:15}
+.toast b{color:#7FD8E6;font-weight:700;margin-left:10px;font-size:11.5px}
+/* ---------- diagram ---------- */
+.dia{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;overflow-x:auto;margin:14px 0}
+.dia svg{display:block;min-width:600px}
+/* ---------- responsive demo ---------- */
+.bp{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
+.frame{background:#12191A;border-radius:14px;padding:7px;box-shadow:0 8px 22px rgba(20,40,42,.16)}
+.frame .fsc{background:var(--page);border-radius:9px;overflow:hidden;display:flex}
+.frame .lbl{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:8px}
+.frame .lbl b{display:block;color:var(--ink);font-size:12.5px}
+.mini{display:flex;flex-direction:column;font-size:9px}
+.mini .mb{height:16px;background:var(--surface);display:flex;align-items:center;padding:0 5px;
+  font-weight:700;color:var(--ink);border-bottom:1px solid #EDF0F0;flex:0 0 16px}
+.mini .mc{flex:1;padding:4px;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+.mini .blk{background:var(--surface);border-radius:4px;height:11px}
+.mini .blk.b2{background:var(--p-container);height:22px}
+.mini .rail{width:15px;background:var(--surface);border-right:1px solid var(--line);display:flex;
+  flex-direction:column;align-items:center;gap:5px;padding-top:5px;flex:0 0 15px}
+.mini .rail i{width:9px;height:9px;border-radius:3px;background:#CFD8D9;display:block}
+.mini .rail i.on{background:var(--primary)}
+.mini .pane{border-right:1px solid var(--line);padding:4px;display:flex;flex-direction:column;gap:3px;
+  flex:0 0 40%;overflow:hidden}
+.mini .pane.r{flex:1;border-right:none;background:#fff}
+.mini .nb{height:14px;background:var(--surface);border-top:1px solid var(--line);display:flex;flex:0 0 14px}
+.mini .nb i{flex:1;display:flex;align-items:center;justify-content:center}
+.mini .nb i b{width:8px;height:8px;border-radius:2px;background:#CFD8D9;display:block}
+.mini .nb i.on b{background:var(--primary)}
+.mini .mid{flex:1;display:flex;flex-direction:column;gap:3px;padding:4px;overflow:hidden}
+.mini .cardc{background:var(--surface);border-radius:5px;height:34px;margin:0 auto;width:100%;max-width:150px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.mini .btnrow{display:flex;gap:3px;height:9px}
+.mini .btnrow i{flex:1;border-radius:3px;display:block}
+/* notes */
+.callout{border-left:3px solid var(--primary);background:#F0F8F9;border-radius:0 10px 10px 0;padding:12px 15px;margin:14px 0}
+.callout.warn{border-left-color:var(--vague);background:#FFF8ED}
+.callout b{color:var(--ink)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:8px 0 14px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+@media(max-width:1200px){.g4,.g5{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.toc{display:none}.main{padding:0 20px 60px}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<svg style="display:none">
+<symbol id="i-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+<symbol id="i-add" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+<symbol id="i-del" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
+<symbol id="i-set" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81a.49.49 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41L9.25 5.35c-.59.24-1.13.56-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87c-.12.22-.07.47.12.61l2.03 1.58c-.04.3-.06.62-.06.94s.02.64.06.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41a2 2 0 0 0-4 0H8a4 4 0 0 1 8 0c0 .88-.36 1.68-.93 2.25z"/></symbol>
+<symbol id="i-skip" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></symbol>
+<symbol id="i-doneall" viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></symbol>
+<symbol id="i-note" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zM21 18.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></symbol>
+<symbol id="i-tune" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 0 0-3 0v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></symbol>
+<symbol id="i-okcircle" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></symbol>
+<symbol id="i-school" viewBox="0 0 24 24"><path d="M12 3 1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></symbol>
+<symbol id="i-notealt" viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0 4c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H6v-1c0-2 4-3.1 6-3.1S18 18 18 20v-1z"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 12h-4a3 3 0 0 1-6 0H5V5h14v10z"/></symbol>
+<symbol id="i-erroric" viewBox="0 0 24 24"><path d="M12 2 1 21h22L12 2zm1 14h-2v-2h2v2zm0-4h-2V8h2v4z"/></symbol>
+<symbol id="i-filteroff" viewBox="0 0 24 24"><path d="M19.07 4.93 17.8 6.2l-6.48 6.48-4.6 4.6L5 19l1.72 1.72 1.72-1.72 4.6-4.6 6.48-6.48 1.27-1.27-1.72-1.72zM3 5v2h4.13l-2-2H3zm14.34 11.71 1.45-1.45 1.28 1.28-1.45 1.45zM7.83 3 6.41 1.59 5 3H3v2h2l10 10v5h2v-7l3 3v-2l-3-3V3H7.83z"/></symbol>
+</svg>
+
+<div class="wrap">
+<nav class="toc">
+  <div class="brand">艾宾浩斯备忘录</div>
+  <div class="brand-sub">UI / 交互设计方案 v1.0<br>基于现有代码结构推导</div>
+  <h4>目录</h4>
+  <a href="#s0">0 · 设计推导依据</a>
+  <a href="#s1">1 · 设计语言与 Token</a>
+  <a href="#s2" class="sub">色板 / 字阶 / 形状</a>
+  <a href="#s3">2 · 导航与信息架构</a>
+  <a href="#s4">3 · 通用布局框架</a>
+  <a href="#s5">4 · 核心页面设计</a>
+  <a href="#s6" class="sub">知识库主页</a>
+  <a href="#s7" class="sub">知识点详情</a>
+  <a href="#s8" class="sub">沉浸式复习流</a>
+  <a href="#s9" class="sub">设置页</a>
+  <a href="#s10">5 · 浮层与弹窗</a>
+  <a href="#s11">6 · 用户操作流程</a>
+  <a href="#s12">7 · 状态反馈机制</a>
+  <a href="#s13">8 · 空状态与异常态</a>
+  <a href="#s14">9 · 响应式适配</a>
+  <a href="#s15">10 · 无障碍</a>
+  <a href="#s16">11 · 落地清单</a>
+</nav>
+
+<main class="main">
+
+<header class="hero">
+  <div class="tag">Android 16 · Jetpack Compose · Material 3</div>
+  <h1>艾宾浩斯知识点备忘录<br>UI 界面与交互设计方案</h1>
+  <p>本方案完全基于 <code>d:/Projects/androidapk</code> 现有三层架构（<code>core</code> 领域算法 / <code>data</code> Room Flow / <code>ui</code> Compose MVI）推导，
+  覆盖 4 条路由、5 类复习评级、7 档记忆状态机与超量顺延调度，给出可落地的布局、交互、状态与适配规范。</p>
+  <div class="meta">
+    <span>📱 单 Activity + NavHost</span>
+    <span>🎨 Material 3 主题</span>
+    <span>🧠 1/2/4/7/15/30/60 天七档</span>
+    <span>🔁 超量顺延零惩罚</span>
+    <span>📐 Compact / Medium / Expanded</span>
+  </div>
+</header>
+
+<!-- ============ 0 ============ -->
+<section id="s0">
+  <h2><span class="num">0</span>设计推导依据</h2>
+  <p class="lead">界面不是凭空画的，每一处都能在代码里找到出处。下表是"代码事实 → 界面约束"的映射，后续所有设计都以此为锚点。</p>
+  <table>
+    <tr><th style="width:26%">代码落点</th><th style="width:32%">约束 / 能力</th><th>对界面设计的直接影响</th></tr>
+    <tr><td><code>Screen.kt</code></td><td>4 条路由</td><td>导航骨架 = 1 主 Tab（知识库）+ 1 沉浸页（复习）+ 1 设置 + 1 详情下钻</td></tr>
+    <tr><td><code>ReviewStage</code></td><td>7 档：1/2/4/7/15/30/60 天</td><td>档位是核心可视资产 → 必须"徽章化"常驻复习卡与详情卡</td></tr>
+    <tr><td><code>ReviewRating</code></td><td>5 枚举</td><td>复习页底部固定 5 按钮，颜色语义全局唯一</td></tr>
+    <tr><td><code>RolloverEngine</code></td><td>输出 todayBatch / deferredTasks / totalPendingCount</td><td>Banner 需同时表达"今日量 + 顺延量 + 总量"三层信息</td></tr>
+    <tr><td><code>DashboardViewModel</code></td><td>跨天 ∧ 未弹过 ∧ limit&gt;0 ∧ due&gt;0 才弹窗</td><td>看板弹窗是"每日至多一次"的一次性浮层</td></tr>
+    <tr><td><code>UserSettingsEntity</code></td><td>dailyReviewLimit ∈ [0,50]，0 = 停用</td><td>Banner 与复习页必须有独立的"停用"状态</td></tr>
+    <tr><td><code>MathView</code> / <code>MathTextPreprocessor</code></td><td>LaTeX 高保真渲染</td><td>正文区不可纯 Text 截断；列表用 Unicode 降级</td></tr>
+    <tr><td>SQLite <code>ForeignKey.CASCADE</code></td><td>删除即级联清任务</td><td>删除必须二次确认，文案要说明"不可恢复"</td></tr>
+    <tr><td><code>RolloverEngine</code> 不标记逾期</td><td>业务上不存在"逾期"</td><td>全局禁用红色逾期标签、断签、打卡压力元素</td></tr>
+  </table>
+  <div class="callout">
+    <b>设计总纲：</b>复习是高认知负担行为，界面原则是 <b>零噪音 · 零逾期焦虑 · 零惩罚感</b>。
+    高饱和色只出现在"评级按钮"这一处，其余一律低饱和中性面；文案统一用"顺延 / 待复习 / 继续保持"，禁用"逾期 / 失败 / 落后"。
+  </div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+  <h2><span class="num">1</span>设计语言与 Design Token</h2>
+  <p class="lead">全部沿用 <code>ui/theme/Color.kt</code> 与 <code>Type.kt</code> 的既有取值，不引入新主色，保证设计与实现零偏差。</p>
+
+  <h3 id="s2">1.1 色彩 Token</h3>
+  <div class="grid g5">
+    <div class="swatch"><div class="c" style="background:#006874"></div><div class="t"><b>Primary</b><span>#006874</span></div></div>
+    <div class="swatch"><div class="c" style="background:#97F0FF"></div><div class="t"><b>Primary Container</b><span>#97F0FF</span></div></div>
+    <div class="swatch"><div class="c" style="background:#CDE7EC"></div><div class="t"><b>Secondary Container</b><span>#CDE7EC</span></div></div>
+    <div class="swatch"><div class="c" style="background:#525E7D"></div><div class="t"><b>Tertiary</b><span>#525E7D</span></div></div>
+    <div class="swatch"><div class="c" style="background:#DBE4E6"></div><div class="t"><b>Surface Variant</b><span>#DBE4E6</span></div></div>
+  </div>
+  <h4>评级语义色 —— 全局唯一高饱和色组，禁止挪作他用</h4>
+  <div class="grid g5">
+    <div class="swatch"><div class="c" style="background:#E53935"></div><div class="t"><b>忘记 FORGET</b><span>回退 1 档</span></div></div>
+    <div class="swatch"><div class="c" style="background:#F57C00"></div><div class="t"><b>模糊 VAGUE</b><span>保持档位</span></div></div>
+    <div class="swatch"><div class="c" style="background:#2E7D32"></div><div class="t"><b>记住 REMEMBER</b><span>前进 1 档</span></div></div>
+    <div class="swatch"><div class="c" style="background:#00796B"></div><div class="t"><b>已复习</b><span>等同模糊</span></div></div>
+    <div class="swatch"><div class="c" style="background:#1976D2"></div><div class="t"><b>跳过 SKIP</b><span>延后 1 天</span></div></div>
+  </div>
+
+  <h3>1.2 字阶（Type.kt）</h3>
+  <div class="card typescale">
+    <div><span class="nm">headlineLarge</span><span class="sp">28/34 Bold</span><span style="font-size:26px;font-weight:800">设置页上限数字</span></div>
+    <div><span class="nm">headlineMedium</span><span class="sp">24/30 SemiBold</span><span style="font-size:21px;font-weight:700">Banner 数量 / 完成页标题</span></div>
+    <div><span class="nm">titleLarge</span><span class="sp">20/26 SemiBold</span><span style="font-size:18px;font-weight:700">TopAppBar 标题</span></div>
+    <div><span class="nm">titleMedium</span><span class="sp">16/24 Medium</span><span style="font-size:15px;font-weight:600">卡片正文 / 区块标题</span></div>
+    <div><span class="nm">bodyMedium</span><span class="sp">14/20 Normal</span><span style="font-size:13.5px">笔记 / 说明文</span></div>
+    <div><span class="nm">bodySmall</span><span class="sp">12/16 Normal</span><span style="font-size:12px;color:#5A6668">时间戳 / 副文案</span></div>
+    <div><span class="nm">labelSmall</span><span class="sp">11/16 Medium</span><span style="font-size:11px;font-weight:500">标签 Chip</span></div>
+  </div>
+  <p style="margin-top:10px;font-size:13px">正文行高 ≥1.5 倍；<code>MathView</code> 正文 17~18sp、笔记 15sp。</p>
+
+  <h3>1.3 形状 · 阴影 · 间距</h3>
+  <div class="grid g4">
+    <div class="card"><h5>内容卡片</h5><p>圆角 16dp · 阴影 1~2dp</p></div>
+    <div class="card"><h5>复习大卡</h5><p>圆角 20dp · 阴影 3dp</p></div>
+    <div class="card"><h5>按钮 / 输入框</h5><p>圆角 12dp · 无阴影</p></div>
+    <div class="card"><h5>Chip / 徽章</h5><p>圆角 8dp</p></div>
+    <div class="card"><h5>FAB</h5><p>圆角 16dp · 阴影 6dp</p></div>
+    <div class="card"><h5>Dialog</h5><p>圆角 28dp</p></div>
+    <div class="card"><h5>间距栅格</h5><p>4dp 基准：4/8/12/16/20/24</p></div>
+    <div class="card"><h5>安全边距</h5><p>页面左右 16dp · 列表项间距 10dp</p></div>
+  </div>
+
+  <h3>1.4 动效（与 AppNavigation 现有 tween 300ms 对齐）</h3>
+  <table>
+    <tr><th>场景</th><th>动效</th><th>时长</th></tr>
+    <tr><td>页面切换</td><td>横向 Slide（<code>AnimatedContentTransitionScope</code>）</td><td>300ms</td></tr>
+    <tr><td>列表项增删</td><td><code>animateItemPlacement</code></td><td>200ms</td></tr>
+    <tr><td>笔记抽屉展开</td><td><code>AnimatedVisibility</code> expandVertically</td><td>250ms</td></tr>
+    <tr><td>卡片推进下一张</td><td>淡出 + 上移</td><td>180ms</td></tr>
+    <tr><td>进度条推进</td><td>线性插值</td><td>200ms</td></tr>
+  </table>
+  <p style="font-size:13px">禁止弹跳动效；全部遵循系统"减少动画"开关。图标统一 Material Symbols Outlined，24dp（卡内次级 18~20dp），<code>contentDescription</code> 必填。</p>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s3">
+  <h2><span class="num">2</span>整体页面布局与导航结构</h2>
+  <p class="lead">现状是 TopAppBar + FAB 的"中心辐射式"导航。方案建议升级为 <b>底部 3 Tab</b>，把"复习"从 Banner 单点入口提升为常驻一级入口，
+  同时保持复习页的沉浸性（进入时隐藏底部导航）。</p>
+
+  <div class="dia">
+  <svg viewBox="0 0 980 340" width="100%" height="340" font-family="-apple-system,Segoe UI,PingFang SC,sans-serif">
+    <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+      <path d="M0,0 L7,3.2 L0,6.4 z" fill="#899294"/></marker></defs>
+    <rect x="330" y="8" width="300" height="40" rx="10" fill="#006874"/>
+    <text x="480" y="33" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">MainActivity · Single-Activity</text>
+    <line x1="480" y1="48" x2="480" y2="70" stroke="#899294" stroke-width="1.6" marker-end="url(#ar)"/>
+    <rect x="290" y="70" width="380" height="34" rx="9" fill="#97F0FF"/>
+    <text x="480" y="92" text-anchor="middle" fill="#001F24" font-size="12.5" font-weight="700">AppNavigation (NavHost · start = memo_list)</text>
+    <!-- level 3 -->
+    <g>
+      <line x1="480" y1="104" x2="150" y2="132" stroke="#899294" stroke-width="1.5"/><line x1="150" y1="132" x2="150" y2="150" stroke="#899294" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line x1="480" y1="104" x2="480" y2="150" stroke="#899294" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line x1="480" y1="104" x2="810" y2="132" stroke="#899294" stroke-width="1.5"/><line x1="810" y1="132" x2="810" y2="150" stroke="#899294" stroke-width="1.5" marker-end="url(#ar)"/>
+
+      <rect x="30" y="150" width="240" height="54" rx="10" fill="#fff" stroke="#006874" stroke-width="2"/>
+      <text x="150" y="172" text-anchor="middle" font-size="13" font-weight="700" fill="#191C1D">① 知识库 · memo_list</text>
+      <text x="150" y="190" text-anchor="middle" font-size="11" fill="#5A6668">常驻 Tab · 应用主页</text>
+
+      <rect x="360" y="150" width="240" height="54" rx="10" fill="#fff" stroke="#2E7D32" stroke-width="2"/>
+      <text x="480" y="172" text-anchor="middle" font-size="13" font-weight="700" fill="#191C1D">② 复习 · review</text>
+      <text x="480" y="190" text-anchor="middle" font-size="11" fill="#5A6668">沉浸式 · 隐藏底部导航</text>
+
+      <rect x="690" y="150" width="240" height="54" rx="10" fill="#fff" stroke="#6F797A" stroke-width="2"/>
+      <text x="810" y="172" text-anchor="middle" font-size="13" font-weight="700" fill="#191C1D">③ 设置 · settings</text>
+      <text x="810" y="190" text-anchor="middle" font-size="11" fill="#5A6668">常驻 Tab</text>
+    </g>
+    <!-- children of 1 -->
+    <line x1="150" y1="204" x2="150" y2="228" stroke="#899294" stroke-width="1.5" marker-end="url(#ar)"/>
+    <rect x="20" y="228" width="260" height="92" rx="9" fill="#F8FAF8" stroke="#DBE4E6"/>
+    <text x="34" y="247" font-size="11.5" font-weight="700" fill="#006874">知识库内联 / 浮层</text>
+    <text x="34" y="265" font-size="11" fill="#3F484A">· Hero Banner（3 态）</text>
+    <text x="34" y="281" font-size="11" fill="#3F484A">· 搜索栏 / 标签 FilterChip</text>
+    <text x="34" y="297" font-size="11" fill="#3F484A">· MemoEditDialog（新增·编辑）</text>
+    <text x="34" y="313" font-size="11" fill="#3F484A">· DashboardDialog（每日至多 1 次）</text>
+    <!-- children of 2 -->
+    <line x1="480" y1="204" x2="480" y2="228" stroke="#899294" stroke-width="1.5" marker-end="url(#ar)"/>
+    <rect x="360" y="228" width="240" height="60" rx="9" fill="#F8FAF8" stroke="#DBE4E6"/>
+    <text x="374" y="247" font-size="11.5" font-weight="700" fill="#2E7D32">复习流</text>
+    <text x="374" y="265" font-size="11" fill="#3F484A">· 卡片流（5 评级 + 笔记抽屉）</text>
+    <text x="374" y="281" font-size="11" fill="#3F484A">· ReviewCompletedView 完成页</text>
+    <!-- detail -->
+    <line x1="280" y1="274" x2="640" y2="274" stroke="#899294" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <line x1="640" y1="274" x2="640" y2="300" stroke="#899294" stroke-width="1.5" marker-end="url(#ar)"/>
+    <rect x="620" y="300" width="250" height="34" rx="8" fill="#FFE2E0" stroke="#E53935"/>
+    <text x="745" y="322" text-anchor="middle" font-size="11.5" font-weight="700" fill="#8C1D18">④ 详情 memo_detail/{id}（下钻）</text>
+  </svg>
+  </div>
+
+  <h3>2.1 底部导航 3 项（Compact）</h3>
+  <table>
+    <tr><th>序</th><th>标签</th><th>图标</th><th>路由</th><th>徽标</th><th>说明</th></tr>
+    <tr><td>1</td><td><b>知识库</b></td><td>menu_book</td><td><code>memo_list</code></td><td>—</td><td>应用起始页，含 FAB 新增</td></tr>
+    <tr><td>2</td><td><b>复习</b></td><td>list_alt</td><td><code>review</code></td><td><span class="pill r">Badge: dueTodayCount</span></td><td>&gt;0 显示，=0 隐藏；数字即今日待复习量</td></tr>
+    <tr><td>3</td><td><b>设置</b></td><td>settings</td><td><code>settings</code></td><td>—</td><td>每日上限与规则说明</td></tr>
+  </table>
+
+  <h3>2.2 导航规则</h3>
+  <div class="grid g2">
+    <div class="card"><h5>① 复习 = 沉浸页</h5><p>进入 <code>review</code> 隐藏 NavigationBar，仅保留 TopAppBar 返回键。退出不弹"放弃确认"——复习无副作用。</p></div>
+    <div class="card"><h5>② 详情 = 下钻页</h5><p><code>memo_detail</code> 不显示底部导航，返回键 <code>popBackStack()</code>。</p></div>
+    <div class="card"><h5>③ 状态保持</h5><p>Tab 切换用 <code>saveState/restoreState/launchSingleTop</code>，知识库的搜索词、筛选标签、滚动位置往返不丢。</p></div>
+    <div class="card"><h5>④ 系统返回键</h5><p>详情 → 知识库；复习 → 知识库；知识库 → 退出应用。</p></div>
+    <div class="card"><h5>⑤ 深链预留</h5><p><code>memo_detail/{id}</code> 已参数化，未来可接 App Shortcut / 桌面小组件。</p></div>
+    <div class="card"><h5>⑥ 转场</h5><p>全站横向 Slide 300ms（已实现）；复习页建议改为淡入淡出，避免"翻页感"打断心流。</p></div>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s4">
+  <h2><span class="num">3</span>通用页面布局框架</h2>
+  <div class="grid g2">
+    <div>
+      <div class="card" style="padding:0;overflow:hidden;font-size:12px">
+        <div style="height:22px;background:#EEF2F2;border-bottom:1px solid #E2E8E8;display:flex;align-items:center;padding:0 10px;color:#899294">StatusBar · edge-to-edge 透明</div>
+        <div style="height:46px;background:#F8FAF8;border-bottom:1px solid #EDF0F0;display:flex;align-items:center;padding:0 10px;font-weight:700">TopAppBar 56dp</div>
+        <div style="height:26px;background:#F3F6F6;border-bottom:1px solid #E2E8E8;display:flex;align-items:center;padding:0 10px;color:#5A6668">可选：进度条 / 二级 Tab</div>
+        <div style="height:170px;background:#F8FAF8;display:flex;align-items:center;justify-content:center;color:#899294;border-bottom:1px solid #E2E8E8">Content · padding 16dp<br>LazyColumn / Column+scroll</div>
+        <div style="height:52px;background:#F8FAF8;display:flex;align-items:center;justify-content:center;color:#5A6668">底部操作区 / FAB / NavigationBar</div>
+      </div>
+    </div>
+    <div>
+      <h4>关键约束</h4>
+      <ul>
+        <li><b>Edge-to-Edge</b>：Android 15/16 强制。<code>Scaffold</code> 处理 systemBars insets；FAB 与底部按钮需叠加 <code>navigationBarsPadding()</code>，避免被手势条遮挡。</li>
+        <li><b>滚动行为</b>：知识库列表滚动时 TopAppBar 容器色过渡到 <code>surfaceContainer</code>（<code>scrollBehavior</code>）。</li>
+        <li><b>FAB</b>：仅知识库页显示，右下角距边 16dp；<b>不做 auto-hide</b>，避免误触丢失入口。</li>
+        <li><b>底部按钮区</b>（复习页）：固定不随卡片滚动，卡片区自行 <code>verticalScroll</code>。</li>
+        <li><b>触控目标</b>：所有可点元素 ≥48×48dp。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s5">
+  <h2><span class="num">4</span>核心功能页面设计</h2>
+
+  <!-- ---- 4.1 知识库 ---- -->
+  <h3 id="s6">4.1 知识库主页 · <code>MemoListScreen</code></h3>
+  <p>垂直五分区：Hero Banner → 搜索栏 → 标签筛选 → 卡片列表 → FAB。</p>
+  <div class="rack">
+    <!-- A 有待复习 -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span><div class="ib mut"><svg><use href="#i-set"/></svg></div></div>
+        <div class="body"><div class="scroll">
+          <div class="bnr a">
+            <div style="flex:1">
+              <div class="lbl">今日待复习</div>
+              <div class="num">12 条知识点</div>
+              <div class="sub">今日上限 20 条，已自动顺延 5 条至明日</div>
+            </div>
+            <div class="btn-p"><svg><use href="#i-list"/></svg>立即开始</div>
+          </div>
+          <div class="srch"><svg><use href="#i-search"/></svg><input placeholder="搜索知识点内容或笔记（空格切分多词）" readonly></div>
+          <div class="chips"><div class="chip on">全部</div><div class="chip">Android</div><div class="chip">算法</div><div class="chip">英语</div></div>
+          <div class="mcard">
+            <div class="ct">柯尔莫哥洛夫复杂度：一个字符串的信息量等于生成它的最短程序长度</div>
+            <div class="nt"><svg><use href="#i-note"/></svg><span>助记：与香农熵的区别在于「不可压缩性」</span></div>
+            <div class="fr"><div class="tags"><span class="tag">算法</span><span class="tag">信息论</span></div>
+              <div class="ops"><div class="ib pri"><svg><use href="#i-edit"/></svg></div><div class="ib err"><svg><use href="#i-del"/></svg></div></div></div>
+          </div>
+          <div class="mcard">
+            <div class="ct">Jetpack Compose 重组作用域：remember 在重组中保留，但在配置变更后失效</div>
+            <div class="nt"><svg><use href="#i-note"/></svg><span>rememberSaveable 才能跨旋转保存</span></div>
+            <div class="fr"><div class="tags"><span class="tag">Android</span><span class="tag">Compose</span></div>
+              <div class="ops"><div class="ib pri"><svg><use href="#i-edit"/></svg></div><div class="ib err"><svg><use href="#i-del"/></svg></div></div></div>
+          </div>
+          <div class="mcard">
+            <div class="ct">狄利克雷卷积：$$(f * g)(n) = \sum_{d|n} f(d)g(n/d)$$</div>
+            <div class="fr"><div class="tags"><span class="tag">数学</span></div>
+              <div class="ops"><div class="ib pri"><svg><use href="#i-edit"/></svg></div><div class="ib err"><svg><use href="#i-del"/></svg></div></div></div>
+          </div>
+          <div style="height:56px"></div>
+        </div></div>
+        <div class="navbar">
+          <div class="nv on"><svg><use href="#i-book"/></svg><span>知识库</span></div>
+          <div class="nv"><svg><use href="#i-list"/></svg><span>复习</span><i class="badge">12</i></div>
+          <div class="nv"><svg><use href="#i-set"/></svg><span>设置</span></div>
+        </div>
+        <div class="fab"><svg><use href="#i-add"/></svg></div>
+      </div></div>
+      <div class="cap">Banner 态 A · 有任务</div>
+      <div class="sub">primaryContainer 底 + 数量 headlineMedium + 顺延说明 + 立即开始 CTA，整卡可点</div>
+    </div>
+
+    <!-- B 已完成 -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span><div class="ib mut"><svg><use href="#i-set"/></svg></div></div>
+        <div class="body"><div class="scroll">
+          <div class="bnr b">
+            <svg style="fill:#006874"><use href="#i-okcircle"/></svg>
+            <div style="flex:1"><div class="ttl">今日复习已全部搞定！</div><div class="ttl2">暂无到期待复习知识点，继续保持！</div></div>
+          </div>
+          <div class="srch"><svg><use href="#i-search"/></svg><input placeholder="搜索知识点内容或笔记（空格切分多词）" readonly></div>
+          <div class="chips"><div class="chip on">全部</div><div class="chip">Android</div><div class="chip">算法</div></div>
+          <div class="mcard"><div class="ct">柯尔莫哥洛夫复杂度：一个字符串的信息量等于生成它的最短程序长度</div>
+            <div class="nt"><svg><use href="#i-note"/></svg><span>助记：与香农熵的区别在于「不可压缩性」</span></div>
+            <div class="fr"><div class="tags"><span class="tag">算法</span></div>
+              <div class="ops"><div class="ib pri"><svg><use href="#i-edit"/></svg></div><div class="ib err"><svg><use href="#i-del"/></svg></div></div></div></div>
+          <div class="mcard"><div class="ct">Compose 中 LaunchedEffect 与 DisposableEffect 的生命周期差异</div>
+            <div class="fr"><div class="tags"><span class="tag">Android</span></div>
+              <div class="ops"><div class="ib pri"><svg><use href="#i-edit"/></svg></div><div class="ib err"><svg><use href="#i-del"/></svg></div></div></div></div>
+          <div style="height:56px"></div>
+        </div></div>
+        <div class="navbar">
+          <div class="nv on"><svg><use href="#i-book"/></svg><span>知识库</span></div>
+          <div class="nv"><svg><use href="#i-list"/></svg><span>复习</span></div>
+          <div class="nv"><svg><use href="#i-set"/></svg><span>设置</span></div>
+        </div>
+        <div class="fab"><svg><use href="#i-add"/></svg></div>
+      </div></div>
+      <div class="cap">Banner 态 B · 已完成</div>
+      <div class="sub">secondaryContainer 底 + check_circle；复习 Tab 徽标自动隐藏</div>
+    </div>
+
+    <!-- C 已停用 -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span><div class="ib mut"><svg><use href="#i-set"/></svg></div></div>
+        <div class="body"><div class="scroll">
+          <div class="bnr c">
+            <svg style="fill:#5A6668"><use href="#i-clock"/></svg>
+            <div style="flex:1"><div class="ttl3">今日复习已暂停</div><div class="ttl4">每日复习上限已设为 0 条，可在设置中调整</div></div>
+          </div>
+          <div class="srch"><svg><use href="#i-search"/></svg><input placeholder="搜索知识点内容或笔记（空格切分多词）" readonly></div>
+          <div class="chips"><div class="chip on">全部</div><div class="chip">Android</div></div>
+          <div class="mcard"><div class="ct">柯尔莫哥洛夫复杂度：一个字符串的信息量等于生成它的最短程序长度</div>
+            <div class="fr"><div class="tags"><span class="tag">算法</span></div>
+              <div class="ops"><div class="ib pri"><svg><use href="#i-edit"/></svg></div><div class="ib err"><svg><use href="#i-del"/></svg></div></div></div></div>
+          <div style="height:56px"></div>
+        </div></div>
+        <div class="navbar">
+          <div class="nv on"><svg><use href="#i-book"/></svg><span>知识库</span></div>
+          <div class="nv"><svg><use href="#i-list"/></svg><span>复习</span></div>
+          <div class="nv"><svg><use href="#i-set"/></svg><span>设置</span></div>
+        </div>
+        <div class="fab"><svg><use href="#i-add"/></svg></div>
+      </div></div>
+      <div class="cap">Banner 态 C · 已停用</div>
+      <div class="sub">dailyLimit = 0：surfaceVariant 底，无 CTA，副文案内嵌「去设置」链接</div>
+    </div>
+  </div>
+
+  <h4>Hero Banner 三态对照</h4>
+  <table>
+    <tr><th>态</th><th>触发条件</th><th>容器色</th><th>主文案</th><th>操作</th></tr>
+    <tr><td><span class="pill t">A 有任务</span></td><td>dueToday &gt; 0 ∧ limit &gt; 0</td><td>primaryContainer</td><td>今日待复习 / <b>N 条知识点</b>（headlineMedium）</td><td>「立即开始」FilledButton + 整卡可点</td></tr>
+    <tr><td><span class="pill g">B 已完成</span></td><td>dueToday = 0 ∧ limit &gt; 0</td><td>secondaryContainer</td><td>今日复习已全部搞定！</td><td>无（仅告知）</td></tr>
+    <tr><td><span class="pill n">C 已停用</span></td><td>limit ≤ 0</td><td>surfaceVariant</td><td>今日复习已暂停</td><td>副文案「去设置」链接</td></tr>
+  </table>
+
+  <h4>列表卡片 <code>MemoCardItem</code> 规格</h4>
+  <ul>
+    <li><b>正文</b>：<code>MathTextPreprocessor.formatToUnicode(content)</code>，titleMedium，maxLines 4，Ellipsis</li>
+    <li><b>笔记</b>：tertiary 小图标 + 文本，bodySmall，maxLines 2，仅 <code>notes.isNotBlank()</code> 时渲染</li>
+    <li><b>标签</b>：<code>FlowRow</code> + SuggestionChip（labelSmall）</li>
+    <li><b>操作</b>：编辑（primary）/ 删除（error）IconButton，触控区 48dp；整卡点击进详情，操作按钮不冒泡</li>
+  </ul>
+
+  <!-- ---- 4.2 详情 ---- -->
+  <h3 id="s7">4.2 知识点详情 · <code>MemoDetailScreen</code></h3>
+  <div class="rack">
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><div class="ib"><svg><use href="#i-back"/></svg></div><span class="ti">知识点详情</span>
+          <div class="ib"><svg><use href="#i-copy"/></svg></div><div class="ib pri"><svg><use href="#i-edit"/></svg></div><div class="ib err"><svg><use href="#i-del"/></svg></div></div>
+        <div class="body"><div class="scroll">
+          <div class="dcard"><div class="ch pri"><svg><use href="#i-school"/></svg><b>知识点正文</b></div>
+            <div class="q">柯尔莫哥洛夫复杂度 K(x)：产生字符串 x 的最短程序长度。<br><br>K(x|y) 为条件复杂度，满足 K(x) ≤ K(x|y) + K(y) + O(1)</div></div>
+          <div class="dcard" style="background:#EEF3F3"><div style="font-size:10.5px;color:#899294;font-weight:700;margin-bottom:7px">标签分类</div>
+            <div style="display:flex;gap:5px"><span class="tag">算法</span><span class="tag">信息论</span><span class="tag">硬核</span></div></div>
+          <div class="dcard"><div class="ch ter"><svg><use href="#i-notealt"/></svg><b>个人笔记与记忆线索</b></div>
+            <div class="q" style="font-size:12.5px;color:#3F484A">与香农熵的区别：熵衡量「平均」信息量，K 衡量「单个对象」的不可压缩性。助记：K 是不可计算的（停机问题）。</div></div>
+          <div class="dcard" style="background:#DFF6FA">
+            <div class="ch pri"><svg><use href="#i-info"/></svg><b>艾宾浩斯复习进度追踪</b></div>
+            <div class="kv"><span>当前档位：</span><span class="st">第 4 档 (间隔 7 天)</span></div>
+            <div class="kv"><span>下次复习日期：</span><b>2026-09-21</b></div>
+            <div class="kv"><span>累计复习次数：</span><b>6 次</b></div>
+            <div class="kv"><span>录入创建时间：</span><span class="mut">2026-08-30 14:22</span></div>
+          </div>
+          <div class="dact"><div class="f"><svg><use href="#i-edit"/></svg>编辑知识点</div>
+            <div class="o"><svg><use href="#i-del"/></svg>删除</div></div>
+        </div></div>
+      </div></div>
+      <div class="cap">知识点详情页（正常态）</div>
+      <div class="sub">正文卡（MathView 不截断）→ 标签卡 → 笔记卡 → 复习进度卡 → 底部操作组</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><div class="ib"><svg><use href="#i-back"/></svg></div><span class="ti">知识点详情</span></div>
+        <div class="body"><div class="scroll">
+          <div class="dcard"><div class="ch pri"><svg><use href="#i-school"/></svg><b>知识点正文</b></div>
+            <div class="q">洛必达法则：若 lim f/g 为 0/0 或 ∞/∞ 型，则等于 lim f′/g′</div></div>
+          <div class="dcard"><div class="ch ter"><svg><use href="#i-notealt"/></svg><b>个人笔记与记忆线索</b></div>
+            <div class="q" style="font-size:12px;color:#899294">暂无笔记内容，点击下方编辑按钮可随时追加个人心得或助记线索。</div></div>
+          <div class="dcard" style="background:#DFF6FA">
+            <div class="ch pri"><svg><use href="#i-info"/></svg><b>艾宾浩斯复习进度追踪</b></div>
+            <div class="kv"><span>当前档位：</span><span class="st">长周期复习 (每 60 天一次)</span></div>
+            <div class="kv"><span>下次复习日期：</span><b>2026-11-13</b></div>
+            <div class="kv"><span>累计复习次数：</span><b>11 次</b></div>
+          </div>
+          <div class="dact"><div class="f"><svg><use href="#i-edit"/></svg>编辑知识点</div>
+            <div class="o"><svg><use href="#i-del"/></svg>删除</div></div>
+        </div></div>
+      </div></div>
+      <div class="cap">详情页 · 笔记空态 + 长周期档位</div>
+      <div class="sub">笔记为空走 outline 色引导文案；满 6 档后再「记住」显示长周期徽章</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><div class="ib"><svg><use href="#i-back"/></svg></div><span class="ti">知识点详情</span></div>
+        <div class="body"><div class="scroll">
+          <div class="empty"><svg><use href="#i-erroric"/></svg>
+            <div class="t1">该知识点不存在或已被移除</div>
+            <div class="t2">它可能已在其他设备或会话中被删除</div>
+            <div class="btn">返回列表</div></div>
+        </div></div>
+      </div></div>
+      <div class="cap">异常态 · 数据不存在</div>
+      <div class="sub"><code>memo == null</code>：outline 色图标 + 主文案 + 说明 + 「返回列表」CTA</div>
+    </div>
+  </div>
+
+  <!-- ---- 4.3 复习 ---- -->
+  <h3 id="s8">4.3 沉浸式复习流 · <code>ReviewScreen</code></h3>
+  <div class="rack">
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><div class="ib"><svg><use href="#i-back"/></svg></div><span class="ti">每日复习</span><span class="sp"></span>
+          <span style="font-size:12px;font-weight:800;color:#006874;padding-right:12px">3 / 12</span></div>
+        <div class="prog"><i style="width:25%"></i></div>
+        <div class="body"><div class="scroll">
+          <div class="rcard">
+            <div class="hd"><span class="stg">第 4 档 (7天后复习)</span><span class="cnt">累计复习 6 次</span></div>
+            <div class="q">柯尔莫哥洛夫复杂度：一个字符串的信息量等于生成它的最短程序长度</div>
+            <div style="display:flex;gap:5px"><span class="tag">算法</span><span class="tag">信息论</span></div>
+            <div class="drawer"><svg><use href="#i-bulb"/></svg><span>收起个人笔记与线索</span><svg style="fill:#525E7D"><use href="#i-up"/></svg></div>
+            <div class="note-box"><p>与香农熵的区别：熵衡量平均信息量，K 衡量单个对象的不可压缩性。</p>
+              <div class="ib pri"><svg><use href="#i-edit"/></svg></div></div>
+          </div>
+        </div>
+        <div class="acts">
+          <div class="arow"><div class="abtn forget"><svg><use href="#i-close"/></svg>忘记</div>
+            <div class="abtn vague"><svg><use href="#i-help"/></svg>模糊</div>
+            <div class="abtn remember"><svg><use href="#i-check"/></svg>记住</div></div>
+          <div class="arow"><div class="obtn rev w1"><svg><use href="#i-doneall"/></svg>已复习 (默认模糊)</div>
+            <div class="obtn skp w2"><svg><use href="#i-skip"/></svg>跳过</div></div>
+        </div></div>
+      </div></div>
+      <div class="cap">复习卡片 · 笔记展开（展示态）</div>
+      <div class="sub">顶部进度条 + n/m；卡片含档位徽章、正文、标签、笔记抽屉；底部 5 按钮固定</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><div class="ib"><svg><use href="#i-back"/></svg></div><span class="ti">每日复习</span><span class="sp"></span>
+          <span style="font-size:12px;font-weight:800;color:#006874;padding-right:12px">3 / 12</span></div>
+        <div class="prog"><i style="width:25%"></i></div>
+        <div class="body"><div class="scroll">
+          <div class="rcard">
+            <div class="hd"><span class="stg">第 4 档 (7天后复习)</span><span class="cnt">累计复习 6 次</span></div>
+            <div class="q">柯尔莫哥洛夫复杂度：一个字符串的信息量等于生成它的最短程序长度</div>
+            <div class="drawer"><svg><use href="#i-bulb"/></svg><span>收起个人笔记与线索</span><svg style="fill:#525E7D"><use href="#i-up"/></svg></div>
+            <div class="field" style="margin-top:10px">
+              <label>编辑个人笔记</label>
+              <div class="inp" style="min-height:66px;line-height:1.5">与香农熵的区别：熵衡量平均信息量，K 衡量单个对象的不可压缩性。补充：K 不可计算｜</div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:6px">
+              <span style="font-size:11px;font-weight:700;color:#006874;padding:5px 10px">取消</span>
+              <span style="font-size:11px;font-weight:700;background:#006874;color:#fff;border-radius:8px;padding:5px 12px">保存笔记</span>
+            </div>
+          </div>
+        </div>
+        <div class="acts">
+          <div class="arow"><div class="abtn forget"><svg><use href="#i-close"/></svg>忘记</div>
+            <div class="abtn vague"><svg><use href="#i-help"/></svg>模糊</div>
+            <div class="abtn remember"><svg><use href="#i-check"/></svg>记住</div></div>
+          <div class="arow"><div class="obtn rev w1"><svg><use href="#i-doneall"/></svg>已复习 (默认模糊)</div>
+            <div class="obtn skp w2"><svg><use href="#i-skip"/></svg>跳过</div></div>
+        </div></div>
+      </div></div>
+      <div class="cap">复习卡片 · 笔记编辑态</div>
+      <div class="sub">抽屉内联编辑，保存走 <code>updateNotesOnly()</code> 并同步本地队列，不打断心流</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><div class="ib"><svg><use href="#i-back"/></svg></div><span class="ti">每日复习</span></div>
+        <div class="body"><div class="scroll">
+          <div class="empty">
+            <svg style="fill:#2E7D32"><use href="#i-star"/></svg>
+            <div class="t1" style="font-size:16px;font-weight:800;color:#191C1D">🎉 今日复习全部达成！</div>
+            <div class="t2">今日已成功巩固 12 条知识点。<br>遵循艾宾浩斯曲线，记忆已注入长效固化区。</div>
+            <div style="background:#006874;color:#fff;border-radius:12px;padding:11px 20px;font-size:12.5px;font-weight:700;margin-top:8px">返回知识库主页</div>
+          </div>
+        </div></div>
+      </div></div>
+      <div class="cap">复习完成页</div>
+      <div class="sub">celebration 72dp + 数量回顾；建议增强：显示「顺延至明日 N 条」</div>
+    </div>
+  </div>
+
+  <h4>复习交互要点</h4>
+  <div class="grid g2">
+    <div class="card"><h5>底部按钮区固定</h5><p>不随卡片滚动；卡片区 <code>verticalScroll</code> 自适应。提交后 180ms 淡出上移切入下一张，进度条与 n/m 同步 +1。</p></div>
+    <div class="card"><h5>笔记抽屉三级</h5><p>展开 → 展示态（Surface + 铅笔）→ 编辑态（TextField + 取消/保存）。保存后回展示态并 Toast。</p></div>
+    <div class="card"><h5>草稿保护</h5><p>点击评级时若仍在编辑态，<b>自动保存草稿</b> + Toast「笔记已自动保存」，避免用户输入丢失。</p></div>
+    <div class="card"><h5>评级后果可见</h5><p>每个按钮的无障碍文案需说明后果，如「记住：前进一档，30 天后再复习」，降低误操作。</p></div>
+  </div>
+
+  <!-- ---- 4.4 设置 ---- -->
+  <h3 id="s9">4.4 设置 · <code>SettingsScreen</code></h3>
+  <div class="rack">
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><div class="ib"><svg><use href="#i-back"/></svg></div><span class="ti">偏好设置</span></div>
+        <div class="body"><div class="scroll">
+          <div class="stg-card">
+            <div class="st"><svg><use href="#i-tune"/></svg><b>每日复习数量上限</b></div>
+            <div class="bignum"><span class="n">20</span><span class="u"> 条 / 天</span></div>
+            <div class="slider"><i></i></div>
+            <div style="font-size:10px;color:#899294;margin-bottom:6px;font-weight:600">快捷选项：</div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap">
+              <span class="chip">0 (停用)</span><span class="chip">10 条</span><span class="chip on">20 条</span><span class="chip">30 条</span><span class="chip">50 条</span></div>
+            <div style="font-size:10px;color:#899294;margin-top:9px;line-height:1.5">上限仅影响每日进入复习队列的数量，超量任务自动顺延，不会丢失。</div>
+          </div>
+          <div class="stg-card" style="background:#EEF3F3">
+            <div class="st"><svg><use href="#i-info"/></svg><b>智能调度与顺延规则说明</b></div>
+            <div class="rule"><b>1. 最早到期优先（EDDF）</b><span>到期任务数大于上限时，按到期时间最早优先截取额度，防止旧知识点彻底遗忘。</span></div>
+            <div class="rule"><b>2. 超量任务自动顺延</b><span>超出上限的任务平滑滑动至次日，动态窗口流转，不会堆叠丢失。</span></div>
+            <div class="rule"><b>3. 上限为 0 暂停提醒</b><span>当日待复习数为 0，不弹看板，适合休息或专注录入。</span></div>
+            <div class="rule"><b>4. 跨天未登录零惩罚合并</b><span>所有到期任务自动合并入候选池，不标记逾期，不扣减档位。</span></div>
+            <div class="rule"><b>5. 标准 6 档与长周期晋升</b><span>1/2/4/7/15/30 天；第 6 档再「记住」进入 60 天长周期。</span></div>
+          </div>
+        </div></div>
+      </div></div>
+      <div class="cap">设置页（正常）</div>
+      <div class="sub">大数字 headlineLarge + Slider 0~50 + 快捷 Chips + 规则说明卡</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><div class="ib"><svg><use href="#i-back"/></svg></div><span class="ti">偏好设置</span></div>
+        <div class="body"><div class="scroll">
+          <div class="stg-card">
+            <div class="st"><svg><use href="#i-tune"/></svg><b>每日复习数量上限</b></div>
+            <div class="bignum"><span class="off">0 条（已停用复习推送）</span></div>
+            <div class="slider" style="background:#D5DDDE"><i style="left:0"></i></div>
+            <div style="font-size:10px;color:#899294;margin-bottom:6px;font-weight:600">快捷选项：</div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap">
+              <span class="chip on">0 (停用)</span><span class="chip">10 条</span><span class="chip">20 条</span><span class="chip">30 条</span><span class="chip">50 条</span></div>
+          </div>
+          <div class="stg-card" style="background:#FFECEA;border:1px solid #F3C9C5">
+            <div class="st" style="gap:6px"><svg style="fill:#E53935"><use href="#i-info"/></svg><b style="color:#8C1D18">复习提醒已停用</b></div>
+            <div style="font-size:10.5px;color:#8C1D18;line-height:1.5">当前上限为 0，今日不会推送任何复习看板。已到期的知识点不会丢失，调高上限后会自动合并回复习队列。</div>
+          </div>
+        </div></div>
+      </div></div>
+      <div class="cap">设置页 · 上限 = 0（停用）</div>
+      <div class="sub">数字转 error 色文案；建议增补一张说明卡，消除「是不是数据丢了」的疑虑</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s10">
+  <h2><span class="num">5</span>浮层与弹窗</h2>
+  <div class="rack">
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span></div>
+        <div class="body" style="filter:blur(1px)">
+          <div class="bnr a"><div style="flex:1"><div class="lbl">今日待复习</div><div class="num">12 条知识点</div></div>
+            <div class="btn-p">立即开始</div></div>
+        </div>
+        <div class="dg"><div class="box">
+          <div class="ico"><svg><use href="#i-bell"/></svg></div>
+          <h6>今日复习看板</h6>
+          <p>欢迎回来！您已有 <b>5</b> 天未打开应用，根据艾宾浩斯智能调度，今天有 <b>12</b> 个知识点等待复习巩固。</p>
+          <p class="note">艾宾浩斯顺延保护已生效：未标记逾期，不扣减记忆档位。</p>
+          <div class="row"><span class="tb">稍后</span><span class="tb f">立即复习</span></div>
+        </div></div>
+      </div></div>
+      <div class="cap">DashboardDialog · 多天未登录</div>
+      <div class="sub">触发：跨天 ∧ 今日未弹 ∧ limit&gt;0 ∧ dueToday&gt;0；每日至多 1 次</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span></div>
+        <div class="body"><div class="scroll">
+          <div class="mcard"><div class="ct">柯尔莫哥洛夫复杂度…</div>
+            <div class="fr"><div class="tags"><span class="tag">算法</span></div><div class="ops"><div class="ib pri"><svg><use href="#i-edit"/></svg></div></div></div></div>
+        </div></div>
+        <div class="dg"><div class="box">
+          <h6 style="margin-top:4px">编辑知识点</h6>
+          <div style="background:#F0F8F9;border-radius:8px;padding:6px 9px;font-size:10px;color:#006874;margin-bottom:11px;line-height:1.5">
+            修改内容不会重置复习进度，当前档位与到期日保持不变。</div>
+          <div class="field"><label>知识点内容 *</label><div class="inp" style="min-height:56px;line-height:1.5">柯尔莫哥洛夫复杂度：最短程序长度</div></div>
+          <div class="field"><label>分类标签</label><div class="inp">算法, 信息论</div></div>
+          <div class="field"><label>个人笔记与记忆提示</label><div class="inp ph" style="min-height:44px">可记录解题思路、联想记忆法…</div></div>
+          <div class="row"><span class="tb">取消</span><span class="tb f">保存</span></div>
+        </div></div>
+      </div></div>
+      <div class="cap">MemoEditDialog · 编辑态</div>
+      <div class="sub">新增建议：顶部加「不重置进度」安心提示；内容为空时内联报错</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span></div>
+        <div class="body"><div class="scroll">
+          <div class="mcard"><div class="ct">柯尔莫哥洛夫复杂度…</div></div>
+        </div></div>
+        <div class="dg"><div class="box">
+          <div class="ico" style="background:#FFE2E0"><svg style="fill:#E53935"><use href="#i-erroric"/></svg></div>
+          <h6>确认删除该知识点？</h6>
+          <p>删除后将彻底清除该知识点，并同步通过数据库级联清理对应的艾宾浩斯复习任务与历史，<b>此操作不可恢复</b>。</p>
+          <div class="row"><span class="tb">取消</span><span class="tb d">确认删除</span></div>
+        </div></div>
+        <div class="toast" style="bottom:16px"><span>知识点已删除</span><b>撤销</b></div>
+      </div></div>
+      <div class="cap">删除确认 + Snackbar</div>
+      <div class="sub">详情页已有；<b>列表页建议补同样的二次确认</b>。Snackbar 撤销需配合软删除实现</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span></div>
+        <div class="body"><div class="scroll">
+          <div class="srch"><svg><use href="#i-search"/></svg><input value="量子 熵" style="color:#191C1D;font-weight:600"></div>
+        </div></div>
+        <div class="dg"><div class="box">
+          <h6 style="margin-top:4px">新增知识点</h6>
+          <div class="field"><label>知识点内容 *</label><div class="inp err" style="min-height:38px;color:#899294"></div>
+            <div class="msg">知识点内容不能为空</div></div>
+          <div class="field"><label>分类标签</label><div class="inp">　</div></div>
+          <div class="row"><span class="tb">取消</span><span class="tb f">保存</span></div>
+        </div></div>
+      </div></div>
+      <div class="cap">表单校验错误态</div>
+      <div class="sub"><code>content.trim().isBlank()</code> → isError + supportingText；输入任意非空字符即清除</div>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>浮层</th><th>触发</th><th>主按钮</th><th>次按钮</th><th>关闭方式</th></tr>
+    <tr><td><b>新增/编辑</b> MemoEditDialog</td><td>FAB / 卡片编辑 / 详情页编辑</td><td>保存</td><td>取消</td><td>返回键、点击外部</td></tr>
+    <tr><td><b>每日看板</b> DashboardDialog</td><td>跨天 ∧ 未弹 ∧ limit&gt;0 ∧ due&gt;0</td><td>立即复习</td><td>稍后</td><td>返回键 ≡ 稍后</td></tr>
+    <tr><td><b>删除确认</b></td><td>删除图标</td><td>确认删除（error 色）</td><td>取消</td><td>—</td></tr>
+    <tr><td><b>Snackbar</b></td><td>删除 / 新增 / 保存成功</td><td>撤销</td><td>—</td><td>4s（带 action 10s）</td></tr>
+  </table>
+  <div class="callout warn"><b>撤销的实现前提：</b>Room 当前是物理删除 + CASCADE，Snackbar 无法真正撤销。
+  要么改为软删除（新增 <code>deletedAt</code> + 宽限期），要么 Snackbar 只做告知、不提供「撤销」按钮，避免误导用户。</div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s11">
+  <h2><span class="num">6</span>用户操作流程与状态反馈</h2>
+
+  <h3>6.1 冷启动与看板提醒（F19/F20）</h3>
+  <div class="dia">
+  <svg viewBox="0 0 980 300" width="100%" height="300" font-family="-apple-system,Segoe UI,PingFang SC,sans-serif">
+    <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto"><path d="M0,0 L7,3.2 L0,6.4 z" fill="#899294"/></marker></defs>
+    <rect x="16" y="14" width="128" height="42" rx="10" fill="#006874"/>
+    <text x="80" y="40" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">应用启动</text>
+    <line x1="144" y1="35" x2="186" y2="35" stroke="#899294" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <rect x="186" y="14" width="150" height="42" rx="10" fill="#fff" stroke="#006874" stroke-width="2"/>
+    <text x="261" y="33" text-anchor="middle" font-size="12" font-weight="700">渲染知识库主页</text>
+    <text x="261" y="48" text-anchor="middle" font-size="10.5" fill="#5A6668">OnCheckAppLaunch</text>
+    <line x1="336" y1="35" x2="378" y2="35" stroke="#899294" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <polygon points="378,35 414,12 450,35 414,58" fill="#F5F8F8" stroke="#6F797A" stroke-width="1.5"/>
+    <text x="414" y="39" text-anchor="middle" font-size="11.5" font-weight="700">limit &gt; 0 ?</text>
+    <line x1="450" y1="35" x2="492" y2="35" stroke="#2E7D32" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <text x="471" y="27" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="700">是</text>
+    <line x1="414" y1="58" x2="414" y2="96" stroke="#E53935" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <text x="424" y="82" font-size="10" fill="#E53935" font-weight="700">否</text>
+    <rect x="330" y="96" width="168" height="40" rx="9" fill="#DBE4E6"/>
+    <text x="414" y="113" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3F484A">Banner 态 C · 已停用</text>
+    <text x="414" y="128" text-anchor="middle" font-size="10" fill="#3F484A">不弹窗，落库 lastActiveDate</text>
+
+    <rect x="492" y="14" width="164" height="42" rx="9" fill="#fff" stroke="#6F797A"/>
+    <text x="574" y="33" text-anchor="middle" font-size="11.5" font-weight="700">planReviewBatch</text>
+    <text x="574" y="48" text-anchor="middle" font-size="10" fill="#5A6668">dueToday / backlog</text>
+    <line x1="656" y1="35" x2="694" y2="35" stroke="#899294" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <polygon points="694,35 742,10 790,35 742,60" fill="#F5F8F8" stroke="#6F797A" stroke-width="1.5"/>
+    <text x="742" y="31" text-anchor="middle" font-size="10.5" font-weight="700">跨天 ∧</text>
+    <text x="742" y="43" text-anchor="middle" font-size="10.5" font-weight="700">未弹 ∧ due&gt;0</text>
+    <line x1="790" y1="35" x2="828" y2="35" stroke="#2E7D32" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <rect x="828" y="10" width="140" height="50" rx="9" fill="#97F0FF"/>
+    <text x="898" y="32" text-anchor="middle" font-size="11.5" font-weight="700" fill="#001F24">弹出看板弹窗</text>
+    <text x="898" y="47" text-anchor="middle" font-size="10" fill="#001F24">立即复习 / 稍后</text>
+    <line x1="742" y1="60" x2="742" y2="96" stroke="#E53935" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <rect x="656" y="96" width="172" height="40" rx="9" fill="#F8FAF8" stroke="#DBE4E6"/>
+    <text x="742" y="113" text-anchor="middle" font-size="11.5" font-weight="700">仅刷新 Banner</text>
+    <text x="742" y="128" text-anchor="middle" font-size="10" fill="#5A6668">今日不再弹</text>
+
+    <line x1="828" y1="60" x2="828" y2="176" stroke="#899294" stroke-width="1.6"/>
+    <line x1="828" y1="176" x2="560" y2="176" stroke="#899294" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <rect x="380" y="156" width="180" height="40" rx="9" fill="#fff" stroke="#006874" stroke-width="2"/>
+    <text x="470" y="181" text-anchor="middle" font-size="11.5" font-weight="700">跳转复习页 + 关闭弹窗</text>
+
+    <rect x="16" y="226" width="948" height="52" rx="10" fill="#F3F6F6" stroke="#DBE4E6"/>
+    <text x="34" y="248" font-size="11.5" font-weight="700" fill="#006874">收尾（必经）：</text>
+    <text x="34" y="266" font-size="11" fill="#3F484A">settingsRepository.updateLastActiveDate(today)　·　markDashboardPrompted(today) 仅在弹窗时调用　·　absentDays = DAYS.between(lastActive, today)，&gt;1 走多天文案</text>
+  </svg>
+  </div>
+
+  <h3>6.2 复习闭环与档位状态机（F08–F13）</h3>
+  <div class="dia">
+  <svg viewBox="0 0 980 340" width="100%" height="340" font-family="-apple-system,Segoe UI,PingFang SC,sans-serif">
+    <defs><marker id="ar3" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto"><path d="M0,0 L7,3.2 L0,6.4 z" fill="#899294"/></marker></defs>
+    <rect x="16" y="120" width="120" height="44" rx="10" fill="#006874"/>
+    <text x="76" y="147" text-anchor="middle" fill="#fff" font-size="12.5" font-weight="700">进入复习页</text>
+    <line x1="136" y1="142" x2="176" y2="142" stroke="#899294" stroke-width="1.6" marker-end="url(#ar3)"/>
+    <rect x="176" y="112" width="180" height="60" rx="10" fill="#fff" stroke="#6F797A"/>
+    <text x="266" y="134" text-anchor="middle" font-size="11.5" font-weight="700">planReviewBatch</text>
+    <text x="266" y="150" text-anchor="middle" font-size="10" fill="#5A6668">dueDate ASC 排序</text>
+    <text x="266" y="164" text-anchor="middle" font-size="10" fill="#5A6668">按 dailyLimit 截断</text>
+    <line x1="356" y1="142" x2="396" y2="142" stroke="#899294" stroke-width="1.6" marker-end="url(#ar3)"/>
+    <polygon points="396,142 434,116 472,142 434,168" fill="#F5F8F8" stroke="#6F797A" stroke-width="1.5"/>
+    <text x="434" y="146" text-anchor="middle" font-size="10.5" font-weight="700">队列空?</text>
+    <line x1="434" y1="168" x2="434" y2="204" stroke="#2E7D32" stroke-width="1.6" marker-end="url(#ar3)"/>
+    <rect x="360" y="204" width="150" height="40" rx="9" fill="#E3F2E4" stroke="#2E7D32"/>
+    <text x="435" y="228" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1B5E20">完成页（无任务）</text>
+    <line x1="472" y1="142" x2="512" y2="142" stroke="#E53935" stroke-width="1.6" marker-end="url(#ar3)"/>
+    <rect x="512" y="112" width="150" height="60" rx="10" fill="#F8FAF8" stroke="#DBE4E6"/>
+    <text x="587" y="134" text-anchor="middle" font-size="11.5" font-weight="700">逐张卡片展示</text>
+    <text x="587" y="150" text-anchor="middle" font-size="10" fill="#5A6668">n / m + 进度条</text>
+    <text x="587" y="164" text-anchor="middle" font-size="10" fill="#5A6668">可展开笔记编辑</text>
+
+    <!-- 5 branches -->
+    <g font-size="10.5">
+      <line x1="662" y1="142" x2="700" y2="60" stroke="#899294" stroke-width="1.4" marker-end="url(#ar3)"/>
+      <rect x="700" y="40" width="270" height="26" rx="7" fill="#FFE2E0"/><text x="712" y="57" fill="#8C1D18" font-weight="700">忘记 → 回退 1 档（第 1 档保持第 1 档）</text>
+      <line x1="662" y1="136" x2="700" y2="98" stroke="#899294" stroke-width="1.4" marker-end="url(#ar3)"/>
+      <rect x="700" y="86" width="270" height="26" rx="7" fill="#FFF0DC"/><text x="712" y="103" fill="#8A4B00" font-weight="700">模糊 → 保持当前档位与间隔</text>
+      <line x1="662" y1="142" x2="700" y2="142" stroke="#899294" stroke-width="1.4" marker-end="url(#ar3)"/>
+      <rect x="700" y="130" width="270" height="26" rx="7" fill="#E3F2E4"/><text x="712" y="147" fill="#1B5E20" font-weight="700">记住 → 前进 1 档（6 档→长周期 60 天）</text>
+      <line x1="662" y1="150" x2="700" y2="188" stroke="#899294" stroke-width="1.4" marker-end="url(#ar3)"/>
+      <rect x="700" y="176" width="270" height="26" rx="7" fill="#D9EFEC"/><text x="712" y="193" fill="#00544B" font-weight="700">已复习（缺省）→ 等同「模糊」处理</text>
+      <line x1="662" y1="156" x2="700" y2="228" stroke="#899294" stroke-width="1.4" marker-end="url(#ar3)"/>
+      <rect x="700" y="216" width="270" height="26" rx="7" fill="#DCEBFA"/><text x="712" y="233" fill="#0D47A1" font-weight="700">跳过 → 不改档位，dueDate + 1 天</text>
+    </g>
+    <rect x="512" y="272" width="458" height="44" rx="10" fill="#F3F6F6" stroke="#DBE4E6"/>
+    <text x="530" y="292" font-size="11" font-weight="700" fill="#006874">submitReviewRating(taskId, rating, today)</text>
+    <text x="530" y="308" font-size="10.5" fill="#3F484A">→ currentIndex + 1 → 达末张 isCompleted = true → ReviewCompletedView</text>
+    <line x1="587" y1="172" x2="587" y2="272" stroke="#899294" stroke-width="1.6" marker-end="url(#ar3)"/>
+  </svg>
+  </div>
+
+  <h3>6.3 其余主流程速览</h3>
+  <div class="grid g2">
+    <div class="card"><h5>F2 新增</h5><p>FAB → Dialog → 内容* / 标签 / 笔记 → 校验 → <code>createMemo</code> 自动派发 Day1 任务 → 列表 Flow 插入 → Snackbar「已添加，首次复习在明天」</p></div>
+    <div class="card"><h5>F3 编辑（保留进度）</h5><p>编辑 → Dialog 预填 → <code>updateMemo</code> 只改 content/notes/tags，<code>ReviewTaskEntity</code> 完全不动 → Snackbar「已保存，复习进度保持不变」</p></div>
+    <div class="card"><h5>F4 删除（级联）</h5><p>删除 → 确认 → <code>deleteMemo</code> → SQLite CASCADE 清任务 → Flow 移除 → Snackbar / 详情页 <code>isDeleted</code> → Toast + popBackStack</p></div>
+    <div class="card"><h5>F5 搜索筛选</h5><p>关键词 / 标签 → <code>combine</code> + <code>flatMapLatest</code> → <code>searchMemos</code> → 命中刷新 / 无命中等空态 B；再点同一标签 = 取消筛选</p></div>
+    <div class="card"><h5>F7 复习中记笔记</h5><p>展开 → 铅笔 → 编辑 → <code>updateNotesOnly</code> → 同步本地队列 → 回展示态 + Toast「笔记已保存」</p></div>
+    <div class="card"><h5>配置上限</h5><p>设置 → 拖动 / 快捷 Chip → <code>updateDailyLimit</code> → 首页 Banner 与复习队列实时重算（Flow 驱动，无需重启）</p></div>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s12">
+  <h2><span class="num">7</span>状态反馈机制</h2>
+  <h3>7.1 四类反馈通道</h3>
+  <table>
+    <tr><th>通道</th><th>适用</th><th>时长</th><th>可操作性</th></tr>
+    <tr><td><b>内联 Inline</b></td><td>表单校验、卡片内说明、Banner 副文案</td><td>常驻</td><td><span class="pill g">高 · 就近修正</span></td></tr>
+    <tr><td><b>Snackbar</b></td><td>删除、新增、保存成功</td><td>4s（带 action 10s）</td><td><span class="pill o">中 · 撤销</span></td></tr>
+    <tr><td><b>Toast</b></td><td>复制、笔记保存等轻量结果</td><td>2s</td><td><span class="pill n">无</span></td></tr>
+    <tr><td><b>整页状态</b></td><td>加载 / 空 / 错误 / 停用</td><td>常驻</td><td><span class="pill g">高 · 带 CTA</span></td></tr>
+  </table>
+
+  <h3>7.2 加载态</h3>
+  <table>
+    <tr><th>场景</th><th>表现</th><th>阈值</th></tr>
+    <tr><td>详情页首帧 <code>isLoading</code></td><td>居中 CircularProgressIndicator</td><td>&lt;300ms 不显示（防闪烁）</td></tr>
+    <tr><td>列表首帧</td><td>骨架屏 3~5 张（surfaceVariant 圆角块 + shimmer）</td><td>同上</td></tr>
+    <tr><td>搜索</td><td>不显示全屏 loading；沿用旧列表 + 顶部细进度条</td><td>输入防抖 300ms</td></tr>
+    <tr><td>复习批次加载</td><td>卡片区骨架，底部按钮区禁用</td><td>—</td></tr>
+    <tr><td>提交评级</td><td>乐观推进（按钮即时响应），写库异步</td><td>—</td></tr>
+  </table>
+
+  <h3>7.3 完整状态矩阵</h3>
+  <table>
+    <tr><th>#</th><th>状态</th><th>触发条件</th><th>展示</th><th>恢复路径</th><th>代码落点</th></tr>
+    <tr><td>S1</td><td>首次空库</td><td>memos 空 ∧ 无搜索 ∧ 无筛选</td><td>插画 + 「知识库空空如也，点击右下角 + 开始添加吧！」+ 新增按钮</td><td>FAB / 空态按钮</td><td>MemoListScreen</td></tr>
+    <tr><td>S2</td><td><span class="pill o">搜索无结果</span></td><td>memos 空 ∧ (query 非空 ∨ tag 非空)</td><td>🔍 + 「未检索到匹配的知识点」+ 清空筛选</td><td>清空条件</td><td>MemoListScreen</td></tr>
+    <tr><td>S3</td><td>今日无复习</td><td>dueToday = 0 ∧ limit &gt; 0</td><td>Banner 态 B + 完成页第二文案</td><td>返回知识库</td><td>DashboardBanner / ReviewCompletedView</td></tr>
+    <tr><td>S4</td><td><span class="pill n">复习已停用</span></td><td>limit ≤ 0</td><td>Banner 态 C；复习页进不去或即显示停用说明</td><td>设置内调高</td><td>DashboardBanner 首分支</td></tr>
+    <tr><td>S5</td><td>超量顺延</td><td>deferredCount &gt; 0</td><td>Banner 副文案「已自动顺延 N 条至明日」</td><td>无需操作</td><td>DashboardBanner</td></tr>
+    <tr><td>S6</td><td>多天未登录</td><td>absentDays &gt; 1</td><td>看板弹窗多天文案 + 「未标记逾期，不扣减档位」</td><td>立即复习 / 稍后</td><td>DashboardDialog</td></tr>
+    <tr><td>S7</td><td>笔记为空</td><td>notes.isBlank()</td><td>列表整块隐藏 / 详情引导文案 / 复习「点击铅笔添加」</td><td>铅笔 → 编辑</td><td>三处</td></tr>
+    <tr><td>S8</td><td><span class="pill r">数据不存在</span></td><td>memo == null</td><td>「该知识点不存在或已被移除」+ 返回列表</td><td>popBackStack</td><td>MemoDetailScreen</td></tr>
+    <tr><td>S9</td><td><span class="pill r">内容为空校验</span></td><td>content.trim().isBlank()</td><td>isError + 「知识点内容不能为空」</td><td>输入即清除</td><td>MemoEditDialog</td></tr>
+    <tr><td>S10</td><td>删除确认</td><td>点击删除</td><td>AlertDialog + 级联说明</td><td>确认 / 取消</td><td>详情已有 · 列表建议补</td></tr>
+    <tr><td>S11</td><td>删除成功</td><td>isDeleted</td><td>Toast「知识点已删除」+ 自动返回</td><td>—</td><td>MemoDetailScreen.LaunchedEffect</td></tr>
+    <tr><td>S12</td><td><span class="pill n">网络 / 权限异常</span></td><td>—</td><td><b>不适用</b>（全本地存储 · 免通知权限）</td><td>—</td><td>无</td></tr>
+    <tr><td>S13</td><td><span class="pill r">数据库异常</span></td><td>DAO 抛异常</td><td>⚠ 错误态页 + 「数据读取失败」+ 重试</td><td>重试（重新订阅 Flow）</td><td>建议补 try/catch</td></tr>
+    <tr><td>S14</td><td><span class="pill o">笔记未保存离开</span></td><td>编辑态直接提交评级</td><td>自动保存草稿 + Toast「笔记已自动保存」</td><td>—</td><td>建议增强</td></tr>
+    <tr><td>S15</td><td>上限边界</td><td>Slider = 0 或 50</td><td>0 → 红色停用文案；50 → 「每日最多 50 条」</td><td>—</td><td>SettingsScreen</td></tr>
+  </table>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s13">
+  <h2><span class="num">8</span>空状态与异常状态展示</h2>
+  <div class="rack">
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span><div class="ib mut"><svg><use href="#i-set"/></svg></div></div>
+        <div class="body">
+          <div class="bnr c"><svg style="fill:#5A6668"><use href="#i-clock"/></svg>
+            <div><div class="ttl3">今日复习已暂停</div><div class="ttl4">先添加知识点吧</div></div></div>
+          <div class="empty"><svg><use href="#i-inbox"/></svg>
+            <div class="t1">知识库空空如也，点击右下角 + 开始添加吧！</div>
+            <div class="t2">添加后系统会自动按 1/2/4/7/15/30 天<br>的节奏为你安排复习</div>
+            <div class="btn">新增知识点</div></div>
+        </div>
+        <div class="navbar"><div class="nv on"><svg><use href="#i-book"/></svg><span>知识库</span></div>
+          <div class="nv"><svg><use href="#i-list"/></svg><span>复习</span></div>
+          <div class="nv"><svg><use href="#i-set"/></svg><span>设置</span></div></div>
+        <div class="fab"><svg><use href="#i-add"/></svg></div>
+      </div></div>
+      <div class="cap">S1 · 首次空库</div>
+      <div class="sub">必须带可执行 CTA，杜绝死胡同</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span><div class="ib mut"><svg><use href="#i-set"/></svg></div></div>
+        <div class="body">
+          <div class="srch"><svg><use href="#i-search"/></svg><input value="量子 拓扑" style="font-weight:600;color:#191C1D"></div>
+          <div class="chips"><div class="chip">全部</div><div class="chip on">算法</div></div>
+          <div class="empty"><svg><use href="#i-filteroff"/></svg>
+            <div class="t1">未检索到匹配的知识点</div>
+            <div class="t2">试试减少关键词，或取消标签筛选</div>
+            <div class="btn">清空筛选</div></div>
+        </div>
+        <div class="navbar"><div class="nv on"><svg><use href="#i-book"/></svg><span>知识库</span></div>
+          <div class="nv"><svg><use href="#i-list"/></svg><span>复习</span></div>
+          <div class="nv"><svg><use href="#i-set"/></svg><span>设置</span></div></div>
+        <div class="fab"><svg><use href="#i-add"/></svg></div>
+      </div></div>
+      <div class="cap">S2 · 搜索/筛选无结果</div>
+      <div class="sub">一键清空条件，回到全量列表</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span><div class="ib mut"><svg><use href="#i-set"/></svg></div></div>
+        <div class="body">
+          <div class="bnr b"><svg style="fill:#006874"><use href="#i-okcircle"/></svg>
+            <div><div class="ttl">今日复习已全部搞定！</div><div class="ttl2">暂无到期待复习知识点</div></div></div>
+          <div class="pad" style="padding-top:4px">
+            <div style="height:64px;background:#DBE4E6;border-radius:13px;margin-bottom:9px;opacity:.7"></div>
+            <div style="height:64px;background:#DBE4E6;border-radius:13px;margin-bottom:9px;opacity:.55"></div>
+            <div style="height:64px;background:#DBE4E6;border-radius:13px;opacity:.4"></div>
+          </div>
+        </div>
+        <div class="navbar"><div class="nv on"><svg><use href="#i-book"/></svg><span>知识库</span></div>
+          <div class="nv"><svg><use href="#i-list"/></svg><span>复习</span></div>
+          <div class="nv"><svg><use href="#i-set"/></svg><span>设置</span></div></div>
+      </div></div>
+      <div class="cap">加载骨架屏</div>
+      <div class="sub">首帧 &lt;300ms 不显示；shimmer 动画</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>▮▮▮ ▲</span></div>
+        <div class="bar"><span class="ti">艾宾浩斯备忘录</span><div class="ib mut"><svg><use href="#i-set"/></svg></div></div>
+        <div class="body">
+          <div class="empty"><svg style="fill:#E53935"><use href="#i-erroric"/></svg>
+            <div class="t1">数据读取失败</div>
+            <div class="t2">本地数据库打开时出现问题，<br>你的知识点仍安全保存在设备中</div>
+            <div class="btn" style="background:#006874;color:#fff">重试</div></div>
+        </div>
+        <div class="navbar"><div class="nv on"><svg><use href="#i-book"/></svg><span>知识库</span></div>
+          <div class="nv"><svg><use href="#i-list"/></svg><span>复习</span></div>
+          <div class="nv"><svg><use href="#i-set"/></svg><span>设置</span></div></div>
+      </div></div>
+      <div class="cap">S13 · 数据库异常（建议补）</div>
+      <div class="sub">错误态必须可恢复；文案先安抚「数据仍安全」再给动作</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>空状态与异常态五原则：</b><br>
+    ① 每个空状态<b>必须带一个可执行 CTA</b>（新增 / 清空筛选 / 去设置 / 重试），杜绝死胡同；<br>
+    ② 文案<b>不制造焦虑</b>——禁用"逾期/失败/落后"，统一"顺延/待复习/继续保持"；<br>
+    ③ 视觉统一：outline 色 72dp 线性图标 + bodyLarge 主文案 + bodySmall 说明 + 次级按钮，垂直居中、左右留 32dp；<br>
+    ④ 异常态<b>必须可恢复</b>：提供重试，或依赖 Flow 在数据变化后自动恢复；<br>
+    ⑤ 空状态<b>不遮挡主功能</b>：TopAppBar、底部导航、FAB 保持可用。
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="s14">
+  <h2><span class="num">9</span>响应式适配方案</h2>
+  <h3>9.1 断点定义（Material 3 WindowSizeClass）</h3>
+  <table>
+    <tr><th>类别</th><th>宽度</th><th>代表设备</th><th>导航组件</th><th>布局</th></tr>
+    <tr><td><b>Compact</b></td><td>&lt; 600dp</td><td>手机竖屏</td><td>NavigationBar（底部 3 项）</td><td>单列；内容满宽，左右 16dp</td></tr>
+    <tr><td><b>Medium</b></td><td>600 – 839dp</td><td>折叠屏展开、小平板竖屏</td><td>NavigationRail（80dp 竖向）</td><td>列表 2 列 Grid；卡片最大宽 600dp 居中</td></tr>
+    <tr><td><b>Expanded</b></td><td>≥ 840dp</td><td>平板横屏、Android 16 桌面窗口化</td><td>永久 Drawer 240dp / Rail</td><td>List–Detail 双窗格；卡片最大宽 720dp 居中</td></tr>
+  </table>
+
+  <h3>9.2 三档可视化对照</h3>
+  <div class="bp">
+    <!-- Compact -->
+    <div>
+      <div class="frame" style="width:180px">
+        <div class="fsc"><div class="mini" style="width:166px;height:320px">
+          <div class="mb">艾宾浩斯备忘录</div>
+          <div class="mc"><div class="blk b2"></div><div class="blk" style="height:9px"></div>
+            <div class="blk" style="height:40px"></div><div class="blk" style="height:40px"></div><div class="blk" style="height:40px"></div></div>
+          <div class="nb"><i><b style="background:#006874"></b></i><i><b></b></i><i><b></b></i></div>
+        </div></div>
+      </div>
+      <div class="lbl"><b>Compact &lt; 600dp</b>单列 + 底部 NavigationBar</div>
+    </div>
+    <!-- Medium -->
+    <div>
+      <div class="frame" style="width:290px">
+        <div class="fsc"><div class="mini" style="width:276px;height:320px;flex-direction:row">
+          <div class="rail"><i class="on"></i><i></i><i></i></div>
+          <div style="flex:1;display:flex;flex-direction:column">
+            <div class="mb">艾宾浩斯备忘录</div>
+            <div class="mc"><div class="blk b2"></div>
+              <div style="display:flex;gap:3px;flex:1"><div style="flex:1;display:flex;flex-direction:column;gap:3px">
+                <div class="blk" style="height:38px"></div><div class="blk" style="height:38px"></div><div class="blk" style="height:38px"></div></div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+                <div class="blk" style="height:38px"></div><div class="blk" style="height:38px"></div><div class="blk" style="height:38px"></div></div></div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+      <div class="lbl"><b>Medium 600–839dp</b>NavigationRail + 2 列 Grid</div>
+    </div>
+    <!-- Expanded -->
+    <div>
+      <div class="frame" style="width:400px">
+        <div class="fsc"><div class="mini" style="width:386px;height:320px;flex-direction:row">
+          <div class="rail" style="width:26px"><i class="on"></i><i></i><i></i></div>
+          <div class="pane"><div class="mb" style="font-size:7px">知识库</div>
+            <div class="blk b2" style="height:14px"></div>
+            <div class="blk" style="height:8px"></div>
+            <div class="blk" style="height:30px"></div><div class="blk" style="height:30px"></div>
+            <div class="blk" style="height:30px;background:#97F0FF"></div><div class="blk" style="height:30px"></div>
+          </div>
+          <div class="pane r"><div class="mb" style="font-size:7px;background:#fff">详情</div>
+            <div class="blk" style="height:60px"></div><div class="blk" style="height:30px"></div><div class="blk" style="height:44px"></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="lbl"><b>Expanded ≥ 840dp</b>List–Detail 双窗格（左 360dp 列表 / 右详情）</div>
+    </div>
+  </div>
+
+  <h3>9.3 各页面响应式规则</h3>
+  <table>
+    <tr><th>页面</th><th>Compact</th><th>Medium</th><th>Expanded</th></tr>
+    <tr><td><b>知识库</b></td><td>单列 LazyColumn，Banner/搜索/标签/列表纵向堆叠</td><td><code>LazyVerticalGrid(Adaptive(320.dp))</code> 2 列；搜索与标签限宽 600dp 居中</td><td><code>ListDetailPaneScaffold</code> 双窗格；选中项高亮；窄屏回退下钻</td></tr>
+    <tr><td><b>复习</b></td><td>卡片满宽（左右 16dp），按钮贴底</td><td>卡片限宽 600dp 居中</td><td>卡片限宽 720dp 居中，按钮区同步限宽</td></tr>
+    <tr><td><b>详情</b></td><td>单列滚动</td><td>内容限宽 600dp 居中</td><td>并入右 Pane；独立访问时限宽 720dp</td></tr>
+    <tr><td><b>设置</b></td><td>单列滚动</td><td colspan="2">滑块卡与规则卡并排 2 列（各 1f）</td></tr>
+    <tr><td><b>弹窗</b></td><td>AlertDialog 默认宽度</td><td colspan="2">限宽 480dp 居中；表单内容超长时内部滚动</td></tr>
+  </table>
+  <div class="callout"><b>复习页是核心沉浸体验，宽屏不得拉伸变形</b>——三档一律限制最大内容宽度并居中。
+  横屏 Compact（如 800×360）改用<b>左右双列</b>：左半卡片内容、右半笔记与按钮区，避免竖向空间不足导致按钮被挤压。</div>
+
+  <h3>9.4 其他适配维度</h3>
+  <div class="grid g3">
+    <div class="card"><h5>字体缩放</h5><p>全量使用 <code>sp</code>；支持系统 0.85×–2.0×；在 1.3× 下复核不截断；复习按钮文字支持换行或自适应。</p></div>
+    <div class="card"><h5>触控目标</h5><p>可点元素 ≥48×48dp；Chip 高 32dp 由父级 padding 补足；评级按钮高 ≥48dp。</p></div>
+    <div class="card"><h5>屏幕旋转</h5><p>允许旋转；<code>ReviewUiState</code> 由 ViewModel 持有，旋转不丢进度；草稿用 <code>rememberSaveable</code>。</p></div>
+    <div class="card"><h5>深色模式</h5><p><code>isSystemInDarkTheme()</code> 驱动；评级色在深色下保持原值，对比度 ≥4.5:1。</p></div>
+    <div class="card"><h5>动态取色</h5><p>当前 <code>dynamicColor = false</code> 保持品牌一致；预留设置开关供 v1.1。</p></div>
+    <div class="card"><h5>Edge-to-Edge</h5><p>Android 15+ 强制；<code>enableEdgeToEdge()</code> + Scaffold insets；FAB 加 <code>navigationBarsPadding()</code>。</p></div>
+    <div class="card"><h5>折叠屏铰链</h5><p><code>WindowInfoTracker</code> 检测 <code>FoldingFeature.isSeparating</code>，按铰链位置分栏，避免卡片横跨铰链。</p></div>
+    <div class="card"><h5>多窗口 / 桌面化</h5><p>Android 16 自由缩放窗口下 <code>WindowSizeClass</code> 实时重算，布局无缝切换。</p></div>
+    <div class="card"><h5>尺寸资源</h5><p>圆角与边距写入 <code>dimens.xml</code>，提供 <code>values-sw600dp</code> / <code>values-sw840dp</code> 覆盖。</p></div>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="s15">
+  <h2><span class="num">10</span>无障碍与可达性</h2>
+  <div class="grid g2">
+    <div class="card"><h5>语义与朗读</h5><p>所有 Icon 必填 <code>contentDescription</code>；评级按钮补充"后果说明"语义（如「记住：前进一档，30 天后再复习」）；装饰性图形标为 null。</p></div>
+    <div class="card"><h5>对比度</h5><p>正文与背景 ≥4.5:1，大字与图标 ≥3:1；评级按钮统一白字 + 深色底，已满足。</p></div>
+    <div class="card"><h5>焦点顺序</h5><p>TalkBack 顺序：TopAppBar → 内容 → 底部按钮；复习页保证 5 个评级按钮可达且不因滚动被隐藏。</p></div>
+    <div class="card"><h5>触控与误操作</h5><p>删除等破坏性操作二次确认；评级按钮间距 ≥8dp，避免连点误触。</p></div>
+  </div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="s16">
+  <h2><span class="num">11</span>落地实施清单</h2>
+  <table>
+    <tr><th>优先级</th><th>事项</th><th>文件</th><th>说明</th></tr>
+    <tr><td><span class="pill r">P0</span></td><td>底部 NavigationBar + 复习 Badge</td><td><code>AppNavigation.kt</code> / 新增 <code>AppScaffold.kt</code></td><td>Tab 切换 <code>saveState/restoreState</code></td></tr>
+    <tr><td><span class="pill r">P0</span></td><td>列表页删除二次确认</td><td><code>MemoListScreen.kt</code></td><td>复用详情页 AlertDialog 样式</td></tr>
+    <tr><td><span class="pill r">P0</span></td><td>空/异常态组件化</td><td>新增 <code>ui/component/EmptyState.kt</code> / <code>ErrorState.kt</code> / <code>LoadingSkeleton.kt</code></td><td>三处复用，统一文案与图标</td></tr>
+    <tr><td><span class="pill r">P0</span></td><td>Edge-to-Edge + insets</td><td><code>MainActivity.kt</code></td><td><code>enableEdgeToEdge()</code></td></tr>
+    <tr><td><span class="pill o">P1</span></td><td>Snackbar 统一通道</td><td>Scaffold 增加 <code>SnackbarHost</code></td><td>替代部分 Toast，支持撤销</td></tr>
+    <tr><td><span class="pill o">P1</span></td><td>搜索防抖 + 关键词高亮</td><td><code>MemoListViewModel.kt</code></td><td><code>debounce(300)</code></td></tr>
+    <tr><td><span class="pill o">P1</span></td><td>WindowSizeClass 适配</td><td>新增 <code>ui/util/WindowSize.kt</code></td><td><code>calculateWindowSizeClass</code></td></tr>
+    <tr><td><span class="pill o">P1</span></td><td>Expanded 双窗格</td><td>新增 <code>ListDetailPaneScaffold</code></td><td>material3-adaptive</td></tr>
+    <tr><td><span class="pill b">P2</span></td><td>评级按钮无障碍语义</td><td><code>ReviewScreen.kt</code></td><td>补充后果说明</td></tr>
+    <tr><td><span class="pill b">P2</span></td><td>笔记草稿自动保存</td><td><code>ReviewViewModel.kt</code></td><td>提交评级时保存草稿</td></tr>
+    <tr><td><span class="pill b">P2</span></td><td>完成页展示顺延量</td><td><code>ReviewCompletedView</code></td><td>复用 <code>deferredCount</code></td></tr>
+    <tr><td><span class="pill b">P2</span></td><td>设置页外观/数据分组</td><td><code>SettingsScreen.kt</code></td><td>v1.1 增补</td></tr>
+  </table>
+  <div class="callout"><b>验收口径：</b>所有新增界面必须同时提供 Compact / Medium / Expanded 三档预览，
+  以及<b>正常 / 加载 / 空 / 错误 / 停用</b>五态走查截图，缺一不予合入。</div>
+</section>
+
+<p style="text-align:center;color:#899294;font-size:12.5px;margin-top:50px">
+  — 艾宾浩斯知识点备忘录 · UI/UX 设计方案 v1.0 · 配套文档 <code>design/UI_DESIGN_SPEC.md</code> —
+</p>
+
+</main>
+</div>
+</body>
+</html>

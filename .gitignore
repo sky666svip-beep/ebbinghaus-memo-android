@@ -1,0 +1,51 @@
+# Built application files
+*.apk
+*.aar
+*.jar
+*.war
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle files
+.gradle/
+build/
+*/build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log/OS Files
+*.log
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Keystore files
+*.jks
+*.keystore
+
+# Compose / benchmark
+baselineprofile/build/
+
+# Misc
+*.orig
+*~
+
+# Workbench / agent dirs (local only)
+.agents/
+.workbuddy-ai/

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="katex.min.css">
+    <script src="katex.min.js"></script>
+    <script src="auto-render.min.js"></script>
+    <script src="marked.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
+            word-break: break-word;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+        #content {
+            padding: 2px;
+        }
+
+        /* ===== Markdown 排版样式 ===== */
+        #content > *:first-child { margin-top: 0; }
+        #content > *:last-child { margin-bottom: 0; }
+
+        #content h1, #content h2, #content h3,
+        #content h4, #content h5, #content h6 {
+            margin: 0.7em 0 0.4em;
+            line-height: 1.35;
+            font-weight: 600;
+        }
+        #content h1 { font-size: 1.5em; }
+        #content h2 { font-size: 1.3em; }
+        #content h3 { font-size: 1.15em; }
+        #content h4, #content h5, #content h6 { font-size: 1.0em; }
+
+        #content p { margin: 0.45em 0; }
+
+        #content ul, #content ol {
+            margin: 0.45em 0;
+            padding-left: 1.4em;
+        }
+        #content li { margin: 0.18em 0; }
+        #content li > ul, #content li > ol { margin: 0.18em 0; }
+
+        #content blockquote {
+            margin: 0.5em 0;
+            padding: 0.1em 0 0.1em 0.8em;
+            border-left: 3px solid currentColor;
+            opacity: 0.85;
+        }
+
+        #content code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.9em;
+            padding: 0.12em 0.35em;
+            border-radius: 4px;
+            background-color: rgba(127, 127, 127, 0.16);
+        }
+        #content pre {
+            margin: 0.5em 0;
+            padding: 0.7em 0.8em;
+            border-radius: 8px;
+            background-color: rgba(127, 127, 127, 0.13);
+            overflow-x: auto;
+        }
+        #content pre code {
+            padding: 0;
+            background: none;
+            font-size: 0.88em;
+            white-space: pre;
+        }
+
+        #content a {
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        #content hr {
+            margin: 0.9em 0;
+            border: none;
+            border-top: 1px solid rgba(127, 127, 127, 0.35);
+        }
+
+        #content table {
+            margin: 0.5em 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        #content th, #content td {
+            border: 1px solid rgba(127, 127, 127, 0.35);
+            padding: 0.35em 0.55em;
+            text-align: left;
+        }
+        #content th { font-weight: 600; }
+
+        #content img { max-width: 100%; height: auto; }
+
+        /* ===== KaTeX ===== */
+        .katex-display {
+            margin: 0.5em 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .katex {
+            font-size: 1.05em;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"></div>
+    <script>
+        // ── 1. 未用 $ 包裹的 LaTeX 片段自动补全定界符 ──
+        function preprocessText(text) {
+            if (!text) return "";
+            // 如果文本已包含 $ 或 $$，直接返回
+            if (text.indexOf('$') !== -1) {
+                return text;
+            }
+
+            // 智能自适应识别：若文本包含常见 LaTeX 语法命令但未用 $ 包裹
+            // 将连续的公式片段包裹入 $...$
+            var texCommandPattern = /\\(le|leq|ge|geq|iff|implies|lor|land|oplus|otimes|odot|neq|ne|approx|equiv|pm|mp|times|div|cdot|to|rightarrow|leftarrow|leftrightarrow|forall|exists|in|notin|subset|subseteq|cap|cup|emptyset|infty|sqrt|frac|sum|prod|int|alpha|beta|gamma|delta|epsilon|theta|lambda|mu|pi|sigma|omega|Delta|Sigma|Omega)(?![a-zA-Z])/;
+
+            if (!texCommandPattern.test(text)) {
+                return text;
+            }
+
+            // 按中文标点和换行分割，检查包含 TeX 命令的子句
+            var parts = text.split(/([，。；\n\r]+)/);
+            for (var i = 0; i < parts.length; i++) {
+                if (texCommandPattern.test(parts[i])) {
+                    var trimmed = parts[i].trim();
+                    if (trimmed.length > 0 && trimmed.indexOf('$') === -1) {
+                        parts[i] = "$" + trimmed + "$";
+                    }
+                }
+            }
+            return parts.join('');
+        }
+
+        // ── 2. 公式区间保护 ──
+        // Markdown 解析会破坏 $...$ 内部的下划线、星号等字符（如 x_1 被当成斜体），
+        // 因此先把公式替换为占位符，Markdown 渲染完成后再原样还原。
+        var MATH_PLACEHOLDER = /%%MATHBLOCK(\d+)%%/g;
+
+        function extractMathBlocks(text) {
+            var blocks = [];
+            var replaced = text.replace(/\$\$[\s\S]+?\$\$|\$[^\$\n]+?\$/g, function (match) {
+                blocks.push(match);
+                return '%%MATHBLOCK' + (blocks.length - 1) + '%%';
+            });
+            return { text: replaced, blocks: blocks };
+        }
+
+        function restoreMathBlocks(html, blocks) {
+            return html.replace(MATH_PLACEHOLDER, function (match, index) {
+                var block = blocks[parseInt(index, 10)];
+                return (block === undefined) ? match : block;
+            });
+        }
+
+        // ── 3. 主渲染入口 ──
+        function updateContent(rawText, textColorHex, fontSizePx) {
+            var container = document.getElementById('content');
+            if (textColorHex) {
+                document.body.style.color = textColorHex;
+            }
+            if (fontSizePx) {
+                document.body.style.fontSize = fontSizePx + 'px';
+            }
+
+            var processed = preprocessText(rawText);
+
+            // 步骤一：抽出公式，避免被 Markdown 语法破坏
+            var extracted = extractMathBlocks(processed);
+
+            // 步骤二：转义 HTML 标签，防止笔记内容注入。
+            //   必须在公式提取「之后」执行 —— 这样公式内部的 < > & 不会被误转义，
+            //   交给 KaTeX 的仍是原始字符（如 $a < b$）。
+            var safeMarkdown = escapeHtml(extracted.text);
+
+            // 步骤三：Markdown → HTML
+            //   breaks:true —— 单个换行也渲染为 <br>，符合笔记书写习惯
+            //   gfm:true    —— 支持表格、删除线等 GFM 扩展
+            var html;
+            try {
+                html = marked.parse(safeMarkdown, {
+                    breaks: true,
+                    gfm: true
+                });
+            } catch (e) {
+                // Markdown 解析异常时降级为纯文本，保证内容始终可见
+                html = '<p>' + safeMarkdown.replace(/\n/g, '<br>') + '</p>';
+            }
+
+            // 步骤四：还原公式
+            html = restoreMathBlocks(html, extracted.blocks);
+
+            container.innerHTML = html;
+
+            // 步骤五：KaTeX 渲染公式
+            renderMathInElement(container, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '\\[', right: '\\]', display: true }
+                ],
+                throwOnError: false
+            });
+
+            // 回调 Android 更新高度（延后两帧，等待 KaTeX 字体与排版稳定）
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    var height = document.documentElement.scrollHeight || document.body.scrollHeight;
+                    if (window.AndroidBridge && window.AndroidBridge.onHeightChanged) {
+                        window.AndroidBridge.onHeightChanged(height);
+                    }
+                });
+            });
+        }
+
+        // 仅转义「<」与「&」两个字符：
+        //   < 是注入风险的关键字符（转成 &lt; 后浏览器不会再把它解析为标签起始）；
+        //   & 需一并转义以保持 HTML 实体语义正确。
+        // ⚠️ 刻意不转义「>」—— 它是 Markdown 引用语法（"> 引用"）的前缀，
+        //    转义成 &gt; 会导致 marked 无法识别引用，破坏 Markdown 渲染。
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;');
+        }
+    </script>
+</body>
+</html>

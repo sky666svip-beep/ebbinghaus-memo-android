@@ -1,0 +1,19 @@
+# Baseline Profile（手写最小集，R6 兜底）
+#
+# 本环境无真机/模拟器，无法执行 Macrobenchmark 录制，故此处提交「最小可用集」，
+# 仅覆盖应用入口与冷启动关键类的构造/入口方法，供 release 构建打包。
+#
+# ⚠️ 这不是录制产物，冷启动改善幅度无法在本环境验收。
+# 有设备时请重新录制并覆盖本文件：
+#   ./gradlew :baselineprofile:pmp
+#   ./gradlew :app:generateBaselineProfile
+#
+# 规则格式：HSPL<类全限定名>;-><方法名><描述符>
+#   H=Hot  S=Startup  P=PostStartup
+HSPLcom/ebbinghaus/memo/EbbinghausApp;-><init>()V
+HSPLcom/ebbinghaus/memo/EbbinghausApp;->onCreate()V
+HSPLcom/ebbinghaus/memo/MainActivity;-><init>()V
+HSPLcom/ebbinghaus/memo/MainActivity;->onCreate(Landroid/os/Bundle;)V
+HSPLcom/ebbinghaus/memo/core/engine/EbbinghausScheduler;-><init>()V
+HSPLcom/ebbinghaus/memo/core/engine/RolloverEngine;-><init>()V
+HSPLcom/ebbinghaus/memo/core/util/MathTextPreprocessor;-><init>()V

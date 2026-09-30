@@ -1,0 +1,181 @@
+classDiagram
+    class WindowWidthSizeClass {
+        <<enumeration>>
+        Compact
+        Medium
+        Expanded
+    }
+    class WindowHeightSizeClass {
+        <<enumeration>>
+        Compact
+        Medium
+        Expanded
+    }
+    class WindowSizeClass {
+        +WindowWidthSizeClass widthSizeClass
+        +WindowHeightSizeClass heightSizeClass
+        +Boolean useRail
+        +Boolean useListDetail
+        +Dp contentMaxWidth
+    }
+    WindowSizeClass --> WindowWidthSizeClass
+    WindowSizeClass --> WindowHeightSizeClass
+
+    class Dimens {
+        <<object>>
+        +Dp ScreenPadding
+        +Dp RadiusCard
+        +Dp TouchTarget
+        +Dp ContentMaxWidthMedium
+        +Dp ContentMaxWidthExpanded
+        +Dp ListPaneWidth
+        +Dp RailWidth
+        +Dp GridMinCell
+    }
+
+    class TopLevelDestination {
+        <<sealed>>
+        +String route
+        +ImageVector icon
+        +String label
+        +List entries
+        +fromRoute(String) TopLevelDestination
+    }
+
+    class AppScaffold {
+        +SnackbarHostState snackbarHostState
+        +invoke(windowSizeClass, currentRoute, badgeCount, onNavigateTopLevel, content)
+    }
+    class LocalSnackbarHostState {
+        <<CompositionLocal>>
+        +SnackbarHostState current
+    }
+    AppScaffold --> LocalSnackbarHostState : provides
+    AppScaffold --> WindowSizeClass : consumes
+    AppScaffold --> TopLevelDestination : consumes
+    AppScaffold --> DashboardUiState : badgeCount
+
+    class AppNavigationBar {
+        +invoke(destinations, currentRoute, badgeCount, onNavigate)
+    }
+    class AppNavigationRail {
+        +invoke(destinations, currentRoute, badgeCount, onNavigate)
+    }
+    AppScaffold --> AppNavigationBar
+    AppScaffold --> AppNavigationRail
+
+    class EmptyState {
+        +invoke(icon, title, subtitle, actionLabel, onAction, modifier)
+    }
+    class ErrorState {
+        +invoke(message, onRetry, modifier)
+    }
+    class LoadingSkeleton {
+        +MemoCardSkeleton(modifier)
+        +MemoListSkeleton(count, modifier)
+    }
+    class HighlightedText {
+        +invoke(text, keywords, style, maxLines, overflow, modifier)
+    }
+    class DeleteConfirmDialog {
+        +invoke(memoPreview, onConfirm, onDismiss)
+    }
+
+    class MemoListUiState {
+        +List memos
+        +List allTags
+        +String selectedTag
+        +String searchQuery
+        +Boolean isLoading
+        +Boolean isEditorDialogVisible
+        +KnowledgeMemoEntity editingMemo
+        +Long pendingDeleteId
+        +Boolean isDeleteDialogVisible
+        +String errorMessage
+    }
+    class MemoListUiEvent {
+        <<sealed interface>>
+        OnSearchQueryChanged
+        OnTagSelected
+        OnOpenAddDialog
+        OnOpenEditDialog
+        OnDismissDialog
+        OnSaveMemo
+        OnDeleteMemo
+        OnRequestDeleteMemo
+        OnConfirmDeleteMemo
+        OnCancelDeleteMemo
+        OnClearFilters
+        OnRetry
+    }
+    class MemoListEffect {
+        <<sealed interface>>
+        ShowSnackbar
+    }
+    class MemoListViewModel {
+        -MutableStateFlow _uiState
+        +StateFlow uiState
+        +SharedFlow effect
+        +onEvent(MemoListUiEvent)
+    }
+    MemoListViewModel --> MemoListUiState
+    MemoListViewModel --> MemoListUiEvent
+    MemoListViewModel --> MemoListEffect
+
+    class DashboardUiState {
+        +Boolean isVisible
+        +Int dueTodayCount
+        +Int totalBacklogCount
+        +Int deferredCount
+        +Boolean isMultiDayAbsence
+        +Int absentDays
+        +Int dailyLimit
+    }
+    class DashboardBanner {
+        +invoke(dueTodayCount, deferredCount, dailyLimit, onNavigateToReview, onNavigateToSettings)
+    }
+    DashboardBanner --> DashboardUiState
+
+    class ReviewUiState {
+        +List reviewQueue
+        +Int currentIndex
+        +Boolean isEditingNotes
+        +String notesDraft
+        +Boolean isCompleted
+        +Int totalBatchCount
+        +Int deferredCount
+    }
+    class ReviewEffect {
+        <<sealed interface>>
+        ShowSnackbar
+    }
+    class ReviewViewModel {
+        +StateFlow uiState
+        +SharedFlow effect
+        +onEvent(ReviewUiEvent)
+        -submitRating(ReviewRating)
+    }
+    ReviewViewModel --> ReviewUiState
+    ReviewViewModel --> ReviewEffect
+
+    class MemoListScreen {
+        +invoke(vm, dashboardVm, windowSizeClass, selectedMemoId, callbacks)
+    }
+    class MemoListContent {
+        +invoke(vm, dashboardVm, windowSizeClass, selectedMemoId, callbacks)
+    }
+    class MemoDetailScreen {
+        +invoke(viewModel, onNavigateBack)
+    }
+    class MemoDetailContent {
+        +invoke(viewModel, modifier)
+    }
+    MemoListScreen --> MemoListContent
+    MemoDetailScreen --> MemoDetailContent
+    MemoDetailScreen --> DeleteConfirmDialog
+    MemoListScreen --> DeleteConfirmDialog
+    MemoListScreen --> EmptyState
+    MemoListScreen --> ErrorState
+    MemoListScreen --> LoadingSkeleton
+    MemoListScreen --> HighlightedText
+    MemoListScreen --> DashboardBanner
